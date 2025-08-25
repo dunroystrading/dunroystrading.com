@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>KES to QAR Converter</title>
+
+    <!-- Tailwind CSS CDN for styling -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        body {
+
+            font-family: 'Inter', sans-serif;
+
+            background-color: #f3f4f6;
+
+        }
+
+        .hidden {
+
+            display: none;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container -->
+
+    <div class="w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl border border-gray-100">
+
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Currency Exchange</h1>
+
+        <p class="text-center text-gray-500 mb-8">KES to QAR</p>
+
+        <!-- Dynamic Exchange Rate Display -->
+
+        <div id="exchange-rate-box" class="bg-blue-50 text-blue-700 p-4 rounded-xl text-center font-medium mb-6">
+
+            Current Rate: <span id="current-rate" class="font-bold">--</span> KES = 1 QAR
+
+        </div>
+
+        <!-- Rate Catalog -->
+
+        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-2xl shadow-lg mb-6 border border-emerald-100">
+
+            <h3 class="text-lg font-bold text-emerald-800 mb-4">💰 Rate Catalog</h3>
+
+            <div class="grid grid-cols-3 gap-2 text-sm text-gray-700 font-medium text-center">
+
+                <!-- Header Row -->
+
+                <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">QAR Range</div>
+
+                <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">KES Rate</div>
+
+                <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">Fee</div>
+
+                
+
+                <!-- Tier 1 -->
+
+                <div class="py-2 px-1">100 - 1,500</div>
+
+                <div class="py-2 px-1">36.00</div>
+
+                <div class="py-2 px-1">15 QAR</div>
+
+                <!-- Tier 2 -->
+
+                <div class="py-2 px-1">1,501 - 3,000</div>
+
+                <div class="py-2 px-1">35.80</div>
+
+                <div class="py-2 px-1">20 QAR</div>
+
+                <!-- Tier 3 -->
+
+                <div class="py-2 px-1">3,001 - 5,000</div>
+
+                <div class="py-2 px-1">35.60</div>
+
+                <div class="py-2 px-1">25 QAR</div>
+
+                <!-- Tier 4 -->
+
+                <div class="py-2 px-1">5,001 - 10,000</div>
+
+                <div class="py-2 px-1">35.50</div>
+
+                <div class="py-2 px-1">40 QAR</div>
+
+                <!-- Tier 5 (10,001+) -->
+
+                <div class="py-2 px-1">10,001+</div>
+
+                <div class="py-2 px-1 text-gray-500">
+
+                    <span class="text-gray-500">Contact</span>
+
+                </div>
+
+                <div class="py-2 px-1 text-gray-500">
+
+                    <span class="text-gray-500">Contact</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Conversion Form -->
+
+        <div class="space-y-6">
+
+            <!-- You Give (KES) -->
+
+            <div>
+
+                <label for="kes-amount" class="block text-sm font-medium text-gray-700 mb-2">You Give (KES)</label>
+
+                <div class="relative rounded-xl shadow-sm">
+
+                    <input type="number" id="kes-amount" name="kes-amount" placeholder="Enter amount" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" oninput="handleInput('kes')">
+
+                </div>
+
+            </div>
+
+            <!-- You Get (QAR) -->
+
+            <div>
+
+                <label for="qar-amount-display" class="block text-sm font-medium text-gray-700 mb-2">You Get (QAR)</label>
+
+                <div class="relative rounded-xl shadow-sm">
+
+                    <input type="number" id="qar-amount-display" name="qar-amount-display" placeholder="Amount in QAR" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" oninput="handleInput('qar')">
+
+                </div>
+
+            </div>
+
+        </div>
+
+        
+
+        <!-- Transaction and Delivery Options -->
+
+        <div class="mt-8 space-y-4">
+
+            <!-- Transaction Type -->
+
+            <div>
+
+                <label class="block text-sm font-medium text-gray-700 mb-2">Transaction Type</label>
+
+                <div class="flex items-center space-x-4">
+
+                    <label class="flex items-center cursor-pointer">
+
+                        <input type="radio" name="transaction-type" value="pickup" checked class="form-radio h-5 w-5 text-emerald-600 focus:ring-emerald-500" onchange="toggleDeliveryOptions(); handleInput('kes');">
+
+                        <span class="ml-2 text-gray-700">Pick Up</span>
+
+                    </label>
+
+                    <label class="flex items-center cursor-pointer">
+
+                        <input type="radio" name="transaction-type" value="delivery" class="form-radio h-5 w-5 text-emerald-600 focus:ring-emerald-500" onchange="toggleDeliveryOptions(); handleInput('kes');">
+
+                        <span class="ml-2 text-gray-700">Delivery</span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <!-- Delivery Location Dropdown (Initially hidden) -->
+
+            <div id="delivery-location-container" class="hidden">
+
+                <label for="delivery-location" class="block text-sm font-medium text-gray-700 mb-2">Delivery Location</label>
+
+                <select id="delivery-location" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-lg focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" onchange="handleInput('kes')">
+
+                    <option value="doha">Within Doha</option>
+
+                    <option value="outskirts">Outskirts of Doha</option>
+
+                    <option value="far-from-doha">Far from Doha (Fee Estimated)</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- Minimum Amount Error Message -->
+
+        <div id="amount-warning" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700 font-medium text-center">
+
+            Minimum transaction amount is 100 QAR. Please increase the amount.
+
+        </div>
+
+        <!-- High Amount Warning -->
+
+        <div id="high-amount-warning" class="hidden mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-700 font-medium text-center">
+
+            For transactions over 10,000 QAR, please contact us for the rate and fee.
+
+        </div>
+
+        <!-- Summary of Charges -->
+
+        <div class="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-200">
+
+            <div class="flex justify-between items-center mb-1">
+
+                <span class="text-sm text-gray-600">Transaction Fee:</span>
+
+                <span id="transaction-fee" class="text-sm font-medium text-gray-800">0.00 QAR</span>
+
+            </div>
+
+            <div class="flex justify-between items-center mb-1">
+
+                <span class="text-sm text-gray-600">Delivery Fee:</span>
+
+                <span id="delivery-fee" class="text-sm font-medium text-gray-800">0.00 QAR</span>
+
+            </div>
+
+            <hr class="my-2 border-gray-200">
+
+            <div class="flex justify-between items-center">
+
+                <span class="text-lg font-bold text-gray-700">Total Charges:</span>
+
+                <span id="total-charges" class="text-lg font-bold text-gray-800">0.00 QAR</span>
+
+            </div>
+
+        </div>
+
+        <!-- Final Amount You Get -->
+
+        <div class="mt-6 mb-8 text-center bg-emerald-50 text-emerald-800 py-4 px-6 rounded-2xl">
+
+            <h2 class="text-xl font-bold mb-1">Total You Will Receive</h2>
+
+            <span id="final-qar-amount" class="text-4xl font-extrabold">0.00</span> QAR
+
+        </div>
+
+        <!-- Button to Proceed -->
+
+        <button id="proceed-button" class="w-full bg-emerald-500 hover:bg-emerald-600 transition-colors duration-200 text-white font-bold py-3 px-4 rounded-xl text-lg focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50">
+
+            Proceed to WhatsApp
+
+        </button>
+
+    </div>
+
+    <script>
+
+        // *** IMPORTANT: YOU MUST UPDATE THESE VARIABLES BEFORE USING THE SITE ***
+
+        // 1. Your WhatsApp phone number in international format without the '+'
+
+        const whatsappPhoneNumber = '97431309960';
+
+        // 2. The exchange rate tiers based on the final QAR amount
+
+        const rates = {
+
+            tier1: 36.00, // For final QAR amounts up to 1500
+
+            tier2: 35.80, // For final QAR amounts from 1501 to 3000
+
+            tier3: 35.60, // For final QAR amounts from 3001 to 5000
+
+            tier4: 35.50  // For final QAR amounts from 5001 to 10000
+
+        };
+
+        // 3. The transaction fees based on the final QAR amount
+
+        const transactionFees = {
+
+            tier1: 15.00,
+
+            tier2: 20.00,
+
+            tier3: 25.00,
+
+            tier4: 40.00
+
+        };
+
+        
+
+        // 4. Static delivery fees in QAR
+
+        const deliveryFees = {
+
+            doha: 15.00,
+
+            outskirts: 25.00,
+
+            'far-from-doha': 0.00 // This fee is estimated upon request
+
+        };
+
+        // 5. Minimum transaction amount in QAR
+
+        const minQAR = 100.00;
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            handleInput('kes');
+
+            document.getElementById('proceed-button').addEventListener('click', proceedToWhatsApp);
+
+        });
+
+        // Toggles the visibility of the delivery location dropdown
+
+        function toggleDeliveryOptions() {
+
+            const deliverySelected = document.querySelector('input[name="transaction-type"]:checked').value === 'delivery';
+
+            const locationContainer = document.getElementById('delivery-location-container');
+
+            if (deliverySelected) {
+
+                locationContainer.classList.remove('hidden');
+
+            } else {
+
+                locationContainer.classList.add('hidden');
+
+            }
+
+        }
+
+        // Handles input from either the KES or QAR field
+
+        function handleInput(source) {
+
+            const kesAmount = parseFloat(document.getElementById('kes-amount').value);
+
+            const qarAmount = parseFloat(document.getElementById('qar-amount-display').value);
+
+            const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
+
+            const deliveryLocation = document.getElementById('delivery-location').value;
+
+            
+
+            let currentRate, transactionFee;
+
+            let rawQar, finalQar, rawKes;
+
+            const currentDeliveryFee = (transactionType === 'delivery' ? deliveryFees[deliveryLocation] : 0.00);
+
+            
+
+            // Function to determine the correct rate and transaction fee based on QAR amount
+
+            function getRatesAndFees(amount) {
+
+                let rate, fee;
+
+                if (amount >= 5001 && amount <= 10000) {
+
+                    rate = rates.tier4;
+
+                    fee = transactionFees.tier4;
+
+                } else if (amount >= 3001 && amount <= 5000) {
+
+                    rate = rates.tier3;
+
+                    fee = transactionFees.tier3;
+
+                } else if (amount >= 1501 && amount <= 3000) {
+
+                    rate = rates.tier2;
+
+                    fee = transactionFees.tier2;
+
+                } else {
+
+                    rate = rates.tier1;
+
+                    fee = transactionFees.tier1;
+
+                }
+
+                return { rate, fee };
+
+            }
+
+            if (source === 'kes') {
+
+                if (isNaN(kesAmount) || kesAmount <= 0) {
+
+                    clearOutputs();
+
+                    return;
+
+                }
+
+                
+
+                // For KES to QAR, we need to iterate to find the correct tier
+
+                let tempQar = 0;
+
+                let finalRate = rates.tier1;
+
+                let finalFee = transactionFees.tier1;
+
+                let totalFees = 0;
+
+                for (let amount = 100; amount < 10001; amount += 100) {
+
+                    const { rate, fee } = getRatesAndFees(amount);
+
+                    totalFees = fee + currentDeliveryFee;
+
+                    tempQar = (kesAmount / rate) - totalFees;
+
+                    if (tempQar <= amount) {
+
+                        finalRate = rate;
+
+                        finalFee = fee;
+
+                        break;
+
+                    }
+
+                }
+
+                // If the amount is over 10000, we use the tier4 rate and fee but alert the user
+
+                if (kesAmount / rates.tier4 > 10000) {
+
+                    finalRate = rates.tier4;
+
+                    finalFee = transactionFees.tier4;
+
+                    document.getElementById('high-amount-warning').classList.remove('hidden');
+
+                } else {
+
+                    document.getElementById('high-amount-warning').classList.add('hidden');
+
+                }
+
+                
+
+                rawQar = kesAmount / finalRate;
+
+                finalQar = rawQar - finalFee - currentDeliveryFee;
+
+                
+
+                document.getElementById('qar-amount-display').value = rawQar.toFixed(2);
+
+                updateDisplay(finalRate, finalFee, currentDeliveryFee, finalQar);
+
+            } else if (source === 'qar') {
+
+                if (isNaN(qarAmount) || qarAmount <= 0) {
+
+                    clearOutputs();
+
+                    return;
+
+                }
+
+                
+
+                // For QAR to KES, we can directly find the rates and fees
+
+                const { rate, fee } = getRatesAndFees(qarAmount);
+
+                currentRate = rate;
+
+                transactionFee = fee;
+
+                // Handle the over 10000 QAR case
+
+                if (qarAmount > 10000) {
+
+                    document.getElementById('high-amount-warning').classList.remove('hidden');
+
+                    document.getElementById('proceed-button').disabled = true;
+
+                    document.getElementById('proceed-button').classList.add('opacity-50', 'cursor-not-allowed');
+
+                } else {
+
+                    document.getElementById('high-amount-warning').classList.add('hidden');
+
+                    document.getElementById('proceed-button').disabled = false;
+
+                    document.getElementById('proceed-button').classList.remove('opacity-50', 'cursor-not-allowed');
+
+                }
+
+                
+
+                rawKes = qarAmount * currentRate;
+
+                document.getElementById('kes-amount').value = rawKes.toFixed(2);
+
+                
+
+                finalQar = qarAmount - transactionFee - currentDeliveryFee;
+
+                
+
+                updateDisplay(currentRate, transactionFee, currentDeliveryFee, finalQar);
+
+            }
+
+        }
+
+        // Helper function to update all display elements
+
+        function updateDisplay(rate, transactionFee, currentDeliveryFee, finalQar) {
+
+            document.getElementById('current-rate').textContent = rate.toFixed(2);
+
+            document.getElementById('transaction-fee').textContent = transactionFee.toFixed(2) + ' QAR';
+
+            document.getElementById('delivery-fee').textContent = currentDeliveryFee.toFixed(2) + ' QAR';
+
+            const totalCharges = transactionFee + currentDeliveryFee;
+
+            document.getElementById('total-charges').textContent = totalCharges.toFixed(2) + ' QAR';
+
+            
+
+            document.getElementById('final-qar-amount').textContent = Math.max(0, finalQar).toFixed(2);
+
+            
+
+            // Check if the amount is below the minimum and disable the button if it is
+
+            const proceedButton = document.getElementById('proceed-button');
+
+            const amountWarning = document.getElementById('amount-warning');
+
+            if (finalQar > 0 && finalQar < minQAR) {
+
+                proceedButton.disabled = true;
+
+                proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+                amountWarning.classList.remove('hidden');
+
+            } else if (finalQar >= minQAR && finalQar <= 10000) {
+
+                proceedButton.disabled = false;
+
+                proceedButton.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                amountWarning.classList.add('hidden');
+
+            } else {
+
+                proceedButton.disabled = true;
+
+                proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
+
+                amountWarning.classList.add('hidden');
+
+            }
+
+        }
+
+        // Helper function to clear all fields when input is invalid
+
+        function clearOutputs() {
+
+            document.getElementById('qar-amount-display').value = '';
+
+            document.getElementById('kes-amount').value = '';
+
+            document.getElementById('current-rate').textContent = '--';
+
+            document.getElementById('transaction-fee').textContent = '0.00 QAR';
+
+            document.getElementById('delivery-fee').textContent = '0.00 QAR';
+
+            document.getElementById('total-charges').textContent = '0.00 QAR';
+
+            document.getElementById('final-qar-amount').textContent = '0.00';
+
+            
+
+            document.getElementById('proceed-button').disabled = true;
+
+            document.getElementById('proceed-button').classList.add('opacity-50', 'cursor-not-allowed');
+
+            document.getElementById('amount-warning').classList.add('hidden');
+
+            document.getElementById('high-amount-warning').classList.add('hidden');
+
+        }
+
+        // Function to handle the WhatsApp message
+
+        function proceedToWhatsApp() {
+
+            const kesAmount = parseFloat(document.getElementById('kes-amount').value).toFixed(2);
+
+            const rawQar = parseFloat(document.getElementById('qar-amount-display').value).toFixed(2);
+
+            const finalQar = parseFloat(document.getElementById('final-qar-amount').textContent).toFixed(2);
+
+            const currentRate = parseFloat(document.getElementById('current-rate').textContent).toFixed(2);
+
+            const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
+
+            const deliveryLocation = document.getElementById('delivery-location').value;
+
+            const currentDeliveryFee = (transactionType === 'delivery') ? deliveryFees[deliveryLocation] : 0.00;
+
+            const transactionFee = parseFloat(document.getElementById('transaction-fee').textContent);
+
+            const totalCharges = transactionFee + currentDeliveryFee;
+
+            const transactionId = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+            
+
+            let deliveryLocationText = 'N/A';
+
+            let deliveryFeeText = '0.00 QAR';
+
+            if (transactionType === 'delivery') {
+
+                switch(deliveryLocation) {
+
+                    case 'doha':
+
+                        deliveryLocationText = 'Within Doha';
+
+                        deliveryFeeText = `${currentDeliveryFee.toFixed(2)} QAR`;
+
+                        break;
+
+                    case 'outskirts':
+
+                        deliveryLocationText = 'Outskirts of Doha';
+
+                        deliveryFeeText = `${currentDeliveryFee.toFixed(2)} QAR`;
+
+                        break;
+
+                    case 'far-from-doha':
+
+                        deliveryLocationText = 'Far from Doha';
+
+                        deliveryFeeText = 'Estimated upon request';
+
+                        break;
+
+                }
+
+            }
+
+            // Construct the message to be sent to WhatsApp
+
+            const message = `*New Currency Exchange Request*\n\n` +
+
+                            `KES Amount Provided: ${kesAmount}\n` +
+
+                            `Raw QAR Conversion: ${rawQar}\n\n` +
+
+                            `Transaction Fee: ${transactionFee.toFixed(2)} QAR\n` +
+
+                            `Delivery Fee: ${deliveryFeeText}\n` +
+
+                            `*Total Charges: ${totalCharges.toFixed(2)} QAR*\n\n` +
+
+                            `*Final QAR to Receive: ${finalQar}*\n` +
+
+                            `Exchange Rate: 1 QAR = ${currentRate} KES\n\n` +
+
+                            `Transaction Type: ${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}\n` +
+
+                            `Delivery Location: ${deliveryLocationText}\n\n` +
+
+                            `Transaction ID: #${transactionId}\n\n` +
+
+                            `Please confirm availability to proceed.`;
+
+            const encodedMessage = encodeURIComponent(message);
+
+            const whatsappUrl = `https://wa.me/${whatsappPhoneNumber}?text=${encodedMessage}`;
+
+            // Open the WhatsApp link in a new tab
+
+            window.open(whatsappUrl, '_blank');
+
+        }
+
+    </script>
+
+</body>
+
+</html>
