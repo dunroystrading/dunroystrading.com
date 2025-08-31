@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KES to QAR Exchange</title>
+    <title>E.A Shilings to QAR Exchange</title>
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,60 +23,39 @@
     <!-- Main Container -->
     <div class="w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl border border-gray-100">
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Currency Exchange</h1>
-        <p class="text-center text-gray-500 mb-8">KES to QAR</p>
-        <!-- Dynamic Exchange Rate Display -->
-        <div id="exchange-rate-box" class="bg-blue-50 text-blue-700 p-4 rounded-xl text-center font-medium mb-6">
-            Current Rate: <span id="current-rate" class="font-bold">--</span> KES = 1 QAR
+        <p class="text-center text-gray-500 mb-8">
+            <span id="from-currency-symbol">KES</span> to <span id="to-currency-symbol">QAR</span>
+        </p>
+
+        <!-- Currency Selection -->
+        <div class="mb-6">
+            <label for="currency-select" class="block text-sm font-medium text-gray-700 mb-2">Select Currency to Convert</label>
+            <select id="currency-select" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-base focus:border-emerald-500 focus:ring-emerald-500 transition-colors duration-200" onchange="updateUI(); handleInput('from');">
+                <option value="kes" selected>Kenyan Shilling (KES)</option>
+                <option value="ugx">Ugandan Shilling (UGX)</option>
+                <option value="tzs">Tanzanian Shilling (TZS)</option>
+            </select>
         </div>
-        <!-- Rate Catalog -->
-        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-2xl shadow-lg mb-6 border border-emerald-100">
-            <h3 class="text-lg font-bold text-emerald-800 mb-4">💰 Rate Catalog</h3>
-            <div class="grid grid-cols-3 gap-2 text-sm text-gray-700 font-medium text-center">
-                <!-- Header Row -->
-                <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">QAR Range</div>
-                <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">KES Rate</div>
-                <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">Fee</div>
-                
-                <!-- Tier 1 -->
-                <div class="py-2 px-1">100 - 1,500</div>
-                <div class="py-2 px-1">36.00</div>
-                <div class="py-2 px-1">15 QAR</div>
-                <!-- Tier 2 -->
-                <div class="py-2 px-1">1,501 - 3,000</div>
-                <div class="py-2 px-1">35.80</div>
-                <div class="py-2 px-1">20 QAR</div>
-                <!-- Tier 3 -->
-                <div class="py-2 px-1">3,001 - 5,000</div>
-                <div class="py-2 px-1">35.60</div>
-                <div class="py-2 px-1">25 QAR</div>
-                <!-- Tier 4 -->
-                <div class="py-2 px-1">5,001 - 10,000</div>
-                <div class="py-2 px-1">35.50</div>
-                <div class="py-2 px-1">40 QAR</div>
-                <!-- Tier 5 (10,001+) -->
-                <div class="py-2 px-1">10,001+</div>
-                <div class="py-2 px-1 text-gray-500">
-                    <span class="text-gray-500">Contact</span>
-                </div>
-                <div class="py-2 px-1 text-gray-500">
-                    <span class="text-gray-500">Contact</span>
-                </div>
-            </div>
+        
+        <!-- Dynamic Exchange Rate & Rate Catalog -->
+        <div id="dynamic-rate-section">
+            <!-- Content will be injected here by JavaScript -->
         </div>
+
         <!-- Conversion Form -->
         <div class="space-y-6">
-            <!-- You Give (KES) -->
+            <!-- You Give -->
             <div>
-                <label for="kes-amount" class="block text-sm font-medium text-gray-700 mb-2">You Give (KES)</label>
+                <label for="from-amount" class="block text-sm font-medium text-gray-700 mb-2" id="from-label">You Give (KES)</label>
                 <div class="relative rounded-xl shadow-sm">
-                    <input type="number" id="kes-amount" name="kes-amount" placeholder="Enter amount" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" oninput="handleInput('kes')">
+                    <input type="number" id="from-amount" placeholder="Enter amount" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" oninput="handleInput('from')">
                 </div>
             </div>
-            <!-- You Get (QAR) -->
+            <!-- You Get -->
             <div>
-                <label for="qar-amount-display" class="block text-sm font-medium text-gray-700 mb-2">You Get (QAR)</label>
+                <label for="to-amount-display" class="block text-sm font-medium text-gray-700 mb-2" id="to-label">You Get (QAR)</label>
                 <div class="relative rounded-xl shadow-sm">
-                    <input type="number" id="qar-amount-display" name="qar-amount-display" placeholder="Amount in QAR" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" oninput="handleInput('qar')">
+                    <input type="number" id="to-amount-display" placeholder="Amount in QAR" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" oninput="handleInput('to')">
                 </div>
             </div>
         </div>
@@ -117,15 +96,15 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">Transaction Type</label>
                 <div class="flex items-center space-x-4">
                     <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="transaction-type" value="pickup" checked class="form-radio h-5 w-5 text-emerald-600 focus:ring-emerald-500" onchange="toggleTransactionDetails(); handleInput('kes');">
+                        <input type="radio" name="transaction-type" value="pickup" checked class="form-radio h-5 w-5 text-emerald-600 focus:ring-emerald-500" onchange="toggleTransactionDetails(); handleInput('from');">
                         <span class="ml-2 text-gray-700">Pick Up</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="transaction-type" value="delivery" class="form-radio h-5 w-5 text-emerald-600 focus:ring-emerald-500" onchange="toggleTransactionDetails(); handleInput('kes');">
+                        <input type="radio" name="transaction-type" value="delivery" class="form-radio h-5 w-5 text-emerald-600 focus:ring-emerald-500" onchange="toggleTransactionDetails(); handleInput('from');">
                         <span class="ml-2 text-gray-700">Delivery</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
-                        <input type="radio" name="transaction-type" value="bank-transfer" class="form-radio h-5 w-5 text-emerald-600 focus:ring-emerald-500" onchange="toggleTransactionDetails(); handleInput('kes');">
+                        <input type="radio" name="transaction-type" value="bank-transfer" class="form-radio h-5 w-5 text-emerald-600 focus:ring-emerald-500" onchange="toggleTransactionDetails(); handleInput('from');">
                         <span class="ml-2 text-gray-700">Bank/Wallet Transfer</span>
                     </label>
                 </div>
@@ -133,7 +112,7 @@
             <!-- Delivery Location Dropdown (Initially hidden) -->
             <div id="delivery-location-container" class="hidden">
                 <label for="delivery-location" class="block text-sm font-medium text-gray-700 mb-2">Delivery Location</label>
-                <select id="delivery-location" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" onchange="handleInput('kes')">
+                <select id="delivery-location" class="block w-full rounded-xl border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:ring-blue-500 transition-colors duration-200" onchange="handleInput('from')">
                     <option value="doha">Within Doha</option>
                     <option value="outskirts">Outskirts of Doha</option>
                     <option value="far-from-doha">Far from Doha (Fee Estimated)</option>
@@ -191,22 +170,56 @@
             </div>
         </div>
         <!-- Button to Proceed -->
-        <button id="proceed-button" class="w-full bg-emerald-500 hover:bg-emerald-600 transition-colors duration-200 text-white font-bold py-3 px-4 rounded-xl text-lg focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50">
-            Proceed to WhatsApp
+        <button id="proceed-button" class="w-full bg-emerald-500 hover:bg-emerald-600 transition-colors duration-200 text-white font-bold py-3 px-4 rounded-xl text-lg focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-50 flex items-center justify-center space-x-2">
+            <span>Place Order</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+              <path d="M12 2C6.477 2 2 6.477 2 12c0 1.996.598 3.868 1.636 5.432l-1.353 4.95a1 1 0 00.41 1.097A.993.993 0 003 23c.097 0 .193-.016.287-.047l4.97-1.341c1.558.91 3.327 1.411 5.143 1.411 5.523 0 10-4.477 10-10S17.523 2 12 2zm4.5 12.336c-.198.396-.454.498-.795.53-.34.032-.716.038-1.12.006-.552-.045-1.144-.19-1.848-.528-1.632-.79-2.704-2.42-2.79-2.55-.084-.13-.655-.867-.655-1.656 0-.79.394-1.185.553-1.345.16-.16.34-.2.585-.2.246 0 .428.006.59.336.16.33.546 1.32.59 1.408.043.09.073.19.01.272-.06.082-.12.19-.17.25-.05.06-.11.13-.17.2-0 .06-.12.17-.06.27.06.1.2.2.33.24.13.04.28.05.41.05.13 0 .27-.01.41-.01.838-.112 1.583-.393 2.112-.662.613-.314.99-.488 1.25-.6.28-.12.59-.1.86.06.27.16.4.34.48.56.08.22.08.41.02.51.01.01-.06.06-.12.12-.06.06-.13.12-.2.18-.06.06-.12.12-.18.18-.06.06-.11.1-.17.16-.06.06-.11.11-.11.11z"/>
+            </svg>
         </button>
     </div>
     <script>
         // *** IMPORTANT: YOU MUST UPDATE THESE VARIABLES BEFORE USING THE SITE ***
         // 1. Your WhatsApp phone number in international format without the '+'
         const whatsappPhoneNumber = '97431309960';
-        // 2. The exchange rate tiers based on the final QAR amount
-        const rates = {
-            tier1: 36.00, // For final QAR amounts up to 1500
-            tier2: 35.80, // For final QAR amounts from 1501 to 3000
-            tier3: 35.60, // For final QAR amounts from 3001 to 5000
-            tier4: 35.50  // For final QAR amounts from 5001 to 10000
+        
+        // 2. The currency rates and fees
+        const currencies = {
+            'kes': {
+                name: 'Kenyan Shilling',
+                symbol: 'KES',
+                isTiered: true,
+                rates: {
+                    tier1: 36.00,
+                    tier2: 35.80,
+                    tier3: 35.60,
+                    tier4: 35.50
+                },
+            },
+            'ugx': {
+                name: 'Ugandan Shilling',
+                symbol: 'UGX',
+                isTiered: true,
+                rates: {
+                    tier1: 1000,
+                    tier2: 996,
+                    tier3: 990,
+                    tier4: 980
+                },
+            },
+            'tzs': {
+                name: 'Tanzanian Shilling',
+                symbol: 'TZS',
+                isTiered: true,
+                rates: {
+                    tier1: 700,
+                    tier2: 695,
+                    tier3: 690,
+                    tier4: 688
+                },
+            }
         };
-        // 3. The transaction fees based on the final QAR amount
+
+        // 3. The transaction fees based on the final QAR amount (same for all currencies)
         const transactionFees = {
             tier1: 15.00,
             tier2: 20.00,
@@ -222,13 +235,67 @@
         };
         // 5. Minimum transaction amount in QAR
         const minQAR = 100.00;
+
         document.addEventListener('DOMContentLoaded', () => {
-            handleInput('kes');
+            updateUI();
+            handleInput('from');
             document.getElementById('proceed-button').addEventListener('click', proceedToWhatsApp);
-            // Initial toggle state
             toggleTransactionDetails();
             toggleTransferInputs();
         });
+
+        // Updates UI elements based on the selected currency
+        function updateUI() {
+            const selectedCurrency = document.getElementById('currency-select').value;
+            const currencyData = currencies[selectedCurrency];
+
+            // Update display symbols
+            document.getElementById('from-currency-symbol').textContent = currencyData.symbol;
+            document.getElementById('to-currency-symbol').textContent = 'QAR';
+            
+            // Update labels
+            document.getElementById('from-label').textContent = `You Give (${currencyData.symbol})`;
+            document.getElementById('to-label').textContent = `You Get (QAR)`;
+            
+            const rateCatalog = document.getElementById('dynamic-rate-section');
+            rateCatalog.innerHTML = '';
+            
+            if (currencyData.isTiered) {
+                // Tiered Rate Catalog (for KES, UGX, and TZS)
+                rateCatalog.innerHTML = `
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-lg mb-6 border border-indigo-100">
+                        <h3 class="text-lg font-bold text-indigo-800 mb-4">💰 ${currencyData.symbol} Exchange Rates & Fees</h3>
+                        <div class="grid grid-cols-3 gap-2 text-sm text-gray-700 font-medium text-center">
+                            <!-- Header Row -->
+                            <div class="py-2 px-1 text-indigo-800 font-semibold border-b-2 border-indigo-200">QAR Range</div>
+                            <div class="py-2 px-1 text-indigo-800 font-semibold border-b-2 border-indigo-200">${currencyData.symbol} Rate</div>
+                            <div class="py-2 px-1 text-indigo-800 font-semibold border-b-2 border-indigo-200">Fee (QAR)</div>
+                            <!-- Tiers -->
+                            <div class="py-2 px-1">100 - 1,500</div>
+                            <div class="py-2 px-1">${currencyData.rates.tier1.toFixed(2)}</div>
+                            <div class="py-2 px-1">${transactionFees.tier1.toFixed(2)}</div>
+                            <div class="py-2 px-1">1,501 - 3,000</div>
+                            <div class="py-2 px-1">${currencyData.rates.tier2.toFixed(2)}</div>
+                            <div class="py-2 px-1">${transactionFees.tier2.toFixed(2)}</div>
+                            <div class="py-2 px-1">3,001 - 5,000</div>
+                            <div class="py-2 px-1">${currencyData.rates.tier3.toFixed(2)}</div>
+                            <div class="py-2 px-1">${transactionFees.tier3.toFixed(2)}</div>
+                            <div class="py-2 px-1">5,001 - 10,000</div>
+                            <div class="py-2 px-1">${currencyData.rates.tier4.toFixed(2)}</div>
+                            <div class="py-2 px-1">${transactionFees.tier4.toFixed(2)}</div>
+                            <div class="py-2 px-1">10,001+</div>
+                            <div class="py-2 px-1 text-gray-500">
+                                <span class="text-gray-500">Contact</span>
+                            </div>
+                            <div class="py-2 px-1 text-gray-500">
+                                <span class="text-gray-500">Contact</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
         // Toggles the visibility of the transaction detail containers
         function toggleTransactionDetails() {
             const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
@@ -246,6 +313,7 @@
                 bankContainer.classList.add('hidden');
             }
         }
+
         // Toggles between bank and wallet inputs
         function toggleTransferInputs() {
             const transferMethod = document.querySelector('input[name="transfer-method"]:checked').value;
@@ -260,102 +328,92 @@
                 walletDetails.classList.remove('hidden');
             }
         }
-        // Handles input from either the KES or QAR field
+        
+        // Function to determine the correct transaction fee based on QAR amount
+        function getFee(qarAmount) {
+            let fee;
+            if (qarAmount >= 5001 && qarAmount <= 10000) {
+                fee = transactionFees.tier4;
+            } else if (qarAmount >= 3001 && qarAmount <= 5000) {
+                fee = transactionFees.tier3;
+            } else if (qarAmount >= 1501 && qarAmount <= 3000) {
+                fee = transactionFees.tier2;
+            } else {
+                fee = transactionFees.tier1;
+            }
+            return fee;
+        }
+
+        // Handles input from either the "from" or "to" field
         function handleInput(source) {
-            const kesAmount = parseFloat(document.getElementById('kes-amount').value);
-            const qarAmount = parseFloat(document.getElementById('qar-amount-display').value);
+            const fromAmount = parseFloat(document.getElementById('from-amount').value);
+            const toAmount = parseFloat(document.getElementById('to-amount-display').value);
+            const selectedCurrency = document.getElementById('currency-select').value;
+            const currencyData = currencies[selectedCurrency];
             const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
             const deliveryLocation = document.getElementById('delivery-location').value;
             
-            let currentRate, transactionFee;
-            let rawQar, finalQar, rawKes;
+            let finalQar, transactionFee;
             const currentDeliveryFee = (transactionType === 'delivery' ? deliveryFees[deliveryLocation] : 0.00);
-            
-            // Function to determine the correct rate and transaction fee based on QAR amount
-            function getRatesAndFees(amount) {
-                let rate, fee;
-                if (amount >= 5001 && amount <= 10000) {
-                    rate = rates.tier4;
-                    fee = transactionFees.tier4;
-                } else if (amount >= 3001 && amount <= 5000) {
-                    rate = rates.tier3;
-                    fee = transactionFees.tier3;
-                } else if (amount >= 1501 && amount <= 3000) {
-                    rate = rates.tier2;
-                    fee = transactionFees.tier2;
-                } else {
-                    rate = rates.tier1;
-                    fee = transactionFees.tier1;
-                }
-                return { rate, fee };
-            }
-            if (source === 'kes') {
-                if (isNaN(kesAmount) || kesAmount <= 0) {
+
+            if (source === 'from') {
+                if (isNaN(fromAmount) || fromAmount <= 0) {
                     clearOutputs();
                     return;
                 }
                 
-                // For KES to QAR, we need to iterate to find the correct tier
-                let tempQar = 0;
-                let finalRate = rates.tier1;
-                let finalFee = transactionFees.tier1;
-                let totalFees = 0;
-                for (let amount = 100; amount < 10001; amount += 100) {
-                    const { rate, fee } = getRatesAndFees(amount);
-                    totalFees = fee + currentDeliveryFee;
-                    tempQar = (kesAmount / rate) - totalFees;
-                    if (tempQar <= amount) {
-                        finalRate = rate;
-                        finalFee = fee;
-                        break;
+                let rawQar;
+                let rate;
+                if (currencyData.isTiered) {
+                    // KES, UGX, and TZS have tiered rates
+                    // We need to calculate the tier based on the FROM amount, then convert
+                    // Let's find the rate that gives us the correct QAR tier
+                    // Note: This is an approximation as the QAR amount changes the rate
+                    const approximateQAR = fromAmount / currencyData.rates.tier1;
+                    if (approximateQAR >= 5001) {
+                         rate = currencyData.rates.tier4;
+                    } else if (approximateQAR >= 3001) {
+                         rate = currencyData.rates.tier3;
+                    } else if (approximateQAR >= 1501) {
+                         rate = currencyData.rates.tier2;
+                    } else {
+                         rate = currencyData.rates.tier1;
                     }
-                }
-                // If the amount is over 10000, we use the tier4 rate and fee but alert the user
-                if (kesAmount / rates.tier4 > 10000) {
-                    finalRate = rates.tier4;
-                    finalFee = transactionFees.tier4;
-                    document.getElementById('high-amount-warning').classList.remove('hidden');
-                } else {
-                    document.getElementById('high-amount-warning').classList.add('hidden');
+                    rawQar = fromAmount / rate;
                 }
                 
-                rawQar = kesAmount / finalRate;
-                finalQar = rawQar - finalFee - currentDeliveryFee;
+                transactionFee = getFee(rawQar);
+                finalQar = rawQar - transactionFee - currentDeliveryFee;
                 
-                document.getElementById('qar-amount-display').value = rawQar.toFixed(2);
-                updateDisplay(finalRate, finalFee, currentDeliveryFee, finalQar);
-            } else if (source === 'qar') {
-                if (isNaN(qarAmount) || qarAmount <= 0) {
+                document.getElementById('to-amount-display').value = rawQar.toFixed(2);
+                updateDisplay(finalQar, transactionFee, currentDeliveryFee, selectedCurrency);
+
+            } else if (source === 'to') {
+                if (isNaN(toAmount) || toAmount <= 0) {
                     clearOutputs();
                     return;
                 }
-                
-                // For QAR to KES, we can directly find the rates and fees
-                const { rate, fee } = getRatesAndFees(qarAmount);
-                currentRate = rate;
-                transactionFee = fee;
-                // Handle the over 10000 QAR case
-                if (qarAmount > 10000) {
-                    document.getElementById('high-amount-warning').classList.remove('hidden');
-                    document.getElementById('proceed-button').disabled = true;
-                    document.getElementById('proceed-button').classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    document.getElementById('high-amount-warning').classList.add('hidden');
-                    document.getElementById('proceed-button').disabled = false;
-                    document.getElementById('proceed-button').classList.remove('opacity-50', 'cursor-not-allowed');
+
+                transactionFee = getFee(toAmount);
+                finalQar = toAmount - transactionFee - currentDeliveryFee;
+
+                let fromAmount;
+                if (currencyData.isTiered) {
+                    const rate = (toAmount >= 5001 && toAmount <= 10000) ? currencyData.rates.tier4 :
+                                 (toAmount >= 3001 && toAmount <= 5000) ? currencyData.rates.tier3 :
+                                 (toAmount >= 1501) ? currencyData.rates.tier2 :
+                                 currencyData.rates.tier1;
+                    fromAmount = toAmount * rate;
                 }
-                
-                rawKes = qarAmount * currentRate;
-                document.getElementById('kes-amount').value = rawKes.toFixed(2);
-                
-                finalQar = qarAmount - transactionFee - currentDeliveryFee;
-                
-                updateDisplay(currentRate, transactionFee, currentDeliveryFee, finalQar);
+                document.getElementById('from-amount').value = fromAmount.toFixed(2);
+                updateDisplay(finalQar, transactionFee, currentDeliveryFee, selectedCurrency);
             }
         }
+        
         // Helper function to update all display elements
-        function updateDisplay(rate, transactionFee, currentDeliveryFee, finalQar) {
-            document.getElementById('current-rate').textContent = rate.toFixed(2);
+        function updateDisplay(finalQar, transactionFee, currentDeliveryFee, selectedCurrency) {
+            const currencyData = currencies[selectedCurrency];
+            
             document.getElementById('transaction-fee').textContent = transactionFee.toFixed(2) + ' QAR';
             document.getElementById('delivery-fee').textContent = currentDeliveryFee.toFixed(2) + ' QAR';
             const totalCharges = transactionFee + currentDeliveryFee;
@@ -363,28 +421,37 @@
             
             document.getElementById('final-qar-amount').textContent = Math.max(0, finalQar).toFixed(2);
             
-            // Check if the amount is below the minimum and disable the button if it is
+            // Check if the amount is below the minimum and disable the button
             const proceedButton = document.getElementById('proceed-button');
             const amountWarning = document.getElementById('amount-warning');
-            if (finalQar > 0 && finalQar < minQAR) {
+            const highAmountWarning = document.getElementById('high-amount-warning');
+            const qarAmount = parseFloat(document.getElementById('to-amount-display').value);
+
+            if (qarAmount > 10000) {
+                highAmountWarning.classList.remove('hidden');
+                proceedButton.disabled = true;
+                proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                highAmountWarning.classList.add('hidden');
+                proceedButton.disabled = false;
+                proceedButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            if (qarAmount > 0 && qarAmount < minQAR) {
                 proceedButton.disabled = true;
                 proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
                 amountWarning.classList.remove('hidden');
-            } else if (finalQar >= minQAR && finalQar <= 10000) {
+            } else if (qarAmount >= minQAR && qarAmount <= 10000) {
                 proceedButton.disabled = false;
                 proceedButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 amountWarning.classList.add('hidden');
-            } else {
-                proceedButton.disabled = true;
-                proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
-                amountWarning.classList.add('hidden');
             }
         }
+        
         // Helper function to clear all fields when input is invalid
         function clearOutputs() {
-            document.getElementById('qar-amount-display').value = '';
-            document.getElementById('kes-amount').value = '';
-            document.getElementById('current-rate').textContent = '--';
+            document.getElementById('to-amount-display').value = '';
+            document.getElementById('from-amount').value = '';
             document.getElementById('transaction-fee').textContent = '0.00 QAR';
             document.getElementById('delivery-fee').textContent = '0.00 QAR';
             document.getElementById('total-charges').textContent = '0.00 QAR';
@@ -395,21 +462,34 @@
             document.getElementById('amount-warning').classList.add('hidden');
             document.getElementById('high-amount-warning').classList.add('hidden');
         }
+        
         // Function to handle the WhatsApp message
         function proceedToWhatsApp() {
-            const kesAmount = parseFloat(document.getElementById('kes-amount').value).toFixed(2);
-            const rawQar = parseFloat(document.getElementById('qar-amount-display').value).toFixed(2);
+            const selectedCurrency = document.getElementById('currency-select').value;
+            const currencyData = currencies[selectedCurrency];
+            
+            const fromAmount = parseFloat(document.getElementById('from-amount').value).toFixed(2);
+            const rawQar = parseFloat(document.getElementById('to-amount-display').value).toFixed(2);
             const finalQar = parseFloat(document.getElementById('final-qar-amount').textContent).toFixed(2);
-            const currentRate = parseFloat(document.getElementById('current-rate').textContent).toFixed(2);
             const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
             const transactionFee = parseFloat(document.getElementById('transaction-fee').textContent);
+            
+            let currentRate;
+            if (currencyData.isTiered) {
+                const qarAmount = parseFloat(document.getElementById('to-amount-display').value);
+                currentRate = (qarAmount >= 5001 && qarAmount <= 10000) ? currencyData.rates.tier4 :
+                              (qarAmount >= 3001) ? currencyData.rates.tier3 :
+                              (qarAmount >= 1501) ? currencyData.rates.tier2 :
+                              currencyData.rates.tier1;
+            } else {
+                currentRate = currencyData.rate;
+            }
             
             let deliveryLocationText = 'N/A';
             let deliveryFeeText = '0.00 QAR';
             let extraDetails = '';
-
             const transactionId = Math.random().toString(36).substring(2, 8).toUpperCase();
-
+            
             // Handle delivery details
             if (transactionType === 'delivery') {
                 const deliveryLocation = document.getElementById('delivery-location').value;
@@ -429,7 +509,6 @@
                         break;
                 }
             } else if (transactionType === 'bank-transfer') {
-                // Handle bank/wallet transfer details
                 const transferMethod = document.querySelector('input[name="transfer-method"]:checked').value;
                 if (transferMethod === 'bank') {
                     const bankName = document.getElementById('qatar-banks').value;
@@ -441,27 +520,25 @@
                     extraDetails = `\nWallet Service: ${walletType.charAt(0).toUpperCase() + walletType.slice(1)}\nWallet Number: ${walletNumber || 'Not provided'}`;
                 }
             }
-
+            
             const totalCharges = transactionFee + (transactionType === 'delivery' ? parseFloat(document.getElementById('delivery-fee').textContent) : 0);
-
-            // Construct the message to be sent to WhatsApp
+            
             const message = `*New Currency Exchange Request*\n\n` +
-                            `KES Amount Provided: ${kesAmount}\n` +
-                            `Raw QAR Conversion: ${rawQar}\n\n` +
-                            `Transaction Fee: ${transactionFee.toFixed(2)} QAR\n` +
-                            `Delivery Fee: ${deliveryFeeText}\n` +
-                            `*Total Charges: ${totalCharges.toFixed(2)} QAR*\n\n` +
-                            `*Final QAR to Receive: ${finalQar}*\n` +
-                            `Exchange Rate: 1 QAR = ${currentRate} KES\n\n` +
-                            `Transaction Type: ${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}\n` +
-                            `Delivery Location: ${deliveryLocationText}` +
-                            extraDetails +
-                            `\n\nTransaction ID: #${transactionId}\n\n` +
-                            `Please confirm availability to proceed.`;
-
+                                `You Give (${currencyData.symbol}): ${fromAmount}\n` +
+                                `You Get (QAR): ${rawQar}\n\n` +
+                                `Transaction Fee: ${transactionFee.toFixed(2)} QAR\n` +
+                                `Delivery Fee: ${deliveryFeeText}\n` +
+                                `*Total Charges: ${totalCharges.toFixed(2)} QAR*\n\n` +
+                                `*Final QAR to Receive: ${finalQar}*\n` +
+                                `Exchange Rate: 1 QAR = ${currentRate.toFixed(2)} ${currencyData.symbol}\n\n` +
+                                `Transaction Type: ${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}\n` +
+                                `Delivery Location: ${deliveryLocationText}` +
+                                extraDetails +
+                                `\n\nTransaction ID: #${transactionId}\n\n` +
+                                `Please confirm availability to proceed.`;
+            
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${whatsappPhoneNumber}?text=${encodedMessage}`;
-            // Open the WhatsApp link in a new tab
             window.open(whatsappUrl, '_blank');
         }
     </script>
