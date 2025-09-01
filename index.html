@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shilings to QAR Exchange</title>
     <!-- Open Graph Meta Tags for better social media previews -->
-    <meta property="og:title" content="Shilings to QAR Exchange">
-    <meta property="og:description" content="Exchange your Kes, UGx, or Tzs to Qatari Riyals quickly and securely.">
-    <!-- To make the image sharable, replace the placeholder URL below with the direct link to your hosted image. -->
-    <meta property="og:image" content="[blob:chrome-untrusted://media-app/a8a851d1-6df3-4b37-9c16-e9f293927b01]">
+    <meta property="og:title" content="E.A Shilings to QAR Exchange">
+    <meta property="og:description" content="KES / TZS / UGX exchange to QAR">
+    
     <meta property="og:url" content="https://dunroystrading.github.io/dunroystrading.com">
     <meta property="og:type" content="website">
 
@@ -196,52 +195,29 @@
                 name: 'Kenyan Shilling',
                 symbol: 'KES',
                 isTiered: true,
-                rates: {
-                    tier1: 36.00,
-                    tier2: 35.80,
-                    tier3: 35.60,
-                    tier4: 35.50
-                },
+                rate: 35.50,
             },
             'ugx': {
                 name: 'Ugandan Shilling',
                 symbol: 'UGX',
                 isTiered: true,
-                rates: {
-                    tier1: 1000,
-                    tier2: 996,
-                    tier3: 990,
-                    tier4: 980
-                },
+                rate: 990,
             },
             'tzs': {
                 name: 'Tanzanian Shilling',
                 symbol: 'TZS',
                 isTiered: true,
-                rates: {
-                    tier1: 700,
-                    tier2: 695,
-                    tier3: 690,
-                    tier4: 688
-                },
+                rate: 694,
             }
         };
 
-        // 3. The transaction fees based on the final QAR amount (same for all currencies)
-        const transactionFees = {
-            tier1: 15.00,
-            tier2: 20.00,
-            tier3: 25.00,
-            tier4: 40.00
-        };
-        
-        // 4. Static delivery fees in QAR
+        // 3. Static delivery fees in QAR
         const deliveryFees = {
             doha: 15.00,
             outskirts: 25.00,
             'far-from-doha': 0.00 // This fee is estimated upon request
         };
-        // 5. Minimum transaction amount in QAR
+        // 4. Minimum transaction amount in QAR
         const minQAR = 100.00;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -269,35 +245,25 @@
             rateCatalog.innerHTML = '';
             
             if (currencyData.isTiered) {
-                // Tiered Rate Catalog (for KES, UGX, and TZS)
+                // Tiered Rate Catalog for KES, UGX, and TZS
                 rateCatalog.innerHTML = `
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl shadow-lg mb-6 border border-indigo-100">
                         <h3 class="text-lg font-bold text-indigo-800 mb-4">💰 ${currencyData.symbol} Exchange Rates & Fees</h3>
                         <div class="grid grid-cols-3 gap-2 text-sm text-gray-700 font-medium text-center">
                             <!-- Header Row -->
                             <div class="py-2 px-1 text-indigo-800 font-semibold border-b-2 border-indigo-200">QAR Range</div>
-                            <div class="py-2 px-1 text-indigo-800 font-semibold border-b-2 border-indigo-200">${currencyData.symbol} Rate</div>
-                            <div class="py-2 px-1 text-indigo-800 font-semibold border-b-2 border-indigo-200">Fee (QAR)</div>
+                            <div class="py-2 px-1 text-indigo-800 font-semibold border-b-2 border-indigo-200">Rate</div>
+                            <div class="py-2 px-1 text-indigo-800 font-semibold border-b-2 border-indigo-200">Fee</div>
                             <!-- Tiers -->
-                            <div class="py-2 px-1">100 - 1,500</div>
-                            <div class="py-2 px-1">${currencyData.rates.tier1.toFixed(2)}</div>
-                            <div class="py-2 px-1">${transactionFees.tier1.toFixed(2)}</div>
-                            <div class="py-2 px-1">1,501 - 3,000</div>
-                            <div class="py-2 px-1">${currencyData.rates.tier2.toFixed(2)}</div>
-                            <div class="py-2 px-1">${transactionFees.tier2.toFixed(2)}</div>
-                            <div class="py-2 px-1">3,001 - 5,000</div>
-                            <div class="py-2 px-1">${currencyData.rates.tier3.toFixed(2)}</div>
-                            <div class="py-2 px-1">${transactionFees.tier3.toFixed(2)}</div>
-                            <div class="py-2 px-1">5,001 - 10,000</div>
-                            <div class="py-2 px-1">${currencyData.rates.tier4.toFixed(2)}</div>
-                            <div class="py-2 px-1">${transactionFees.tier4.toFixed(2)}</div>
+                            <div class="py-2 px-1">100 - 2,000</div>
+                            <div class="py-2 px-1">${currencyData.rate.toFixed(2)}</div>
+                            <div class="py-2 px-1">20.00 QAR</div>
+                            <div class="py-2 px-1">2,001 - 10,000</div>
+                            <div class="py-2 px-1">${currencyData.rate.toFixed(2)}</div>
+                            <div class="py-2 px-1">1.1% of QAR</div>
                             <div class="py-2 px-1">10,001+</div>
-                            <div class="py-2 px-1 text-gray-500">
-                                <span class="text-gray-500">Contact</span>
-                            </div>
-                            <div class="py-2 px-1 text-gray-500">
-                                <span class="text-gray-500">Contact</span>
-                            </div>
+                            <div class="py-2 px-1">${currencyData.rate.toFixed(2)}</div>
+                            <div class="py-2 px-1">1% of QAR</div>
                         </div>
                     </div>
                 `;
@@ -338,16 +304,21 @@
         }
         
         // Function to determine the correct transaction fee based on QAR amount
-        function getFee(qarAmount) {
+        function getFee(qarAmount, selectedCurrency) {
             let fee;
-            if (qarAmount >= 5001 && qarAmount <= 10000) {
-                fee = transactionFees.tier4;
-            } else if (qarAmount >= 3001 && qarAmount <= 5000) {
-                fee = transactionFees.tier3;
-            } else if (qarAmount >= 1501 && qarAmount <= 3000) {
-                fee = transactionFees.tier2;
+            const currencyData = currencies[selectedCurrency];
+
+            if (currencyData.isTiered) {
+                if (qarAmount >= 2001 && qarAmount <= 10000) {
+                    fee = qarAmount * 0.011;
+                } else if (qarAmount > 10000) {
+                    fee = qarAmount * 0.01;
+                } else {
+                    fee = 20.00;
+                }
             } else {
-                fee = transactionFees.tier1;
+                // This else block is kept for future non-tiered currencies
+                fee = 0;
             }
             return fee;
         }
@@ -371,26 +342,10 @@
                 }
                 
                 let rawQar;
-                let rate;
-                if (currencyData.isTiered) {
-                    // KES, UGX, and TZS have tiered rates
-                    // We need to calculate the tier based on the FROM amount, then convert
-                    // Let's find the rate that gives us the correct QAR tier
-                    // Note: This is an approximation as the QAR amount changes the rate
-                    const approximateQAR = fromAmount / currencyData.rates.tier1;
-                    if (approximateQAR >= 5001) {
-                         rate = currencyData.rates.tier4;
-                    } else if (approximateQAR >= 3001) {
-                         rate = currencyData.rates.tier3;
-                    } else if (approximateQAR >= 1501) {
-                         rate = currencyData.rates.tier2;
-                    } else {
-                         rate = currencyData.rates.tier1;
-                    }
-                    rawQar = fromAmount / rate;
-                }
+                let rate = currencyData.rate;
+                rawQar = fromAmount / rate;
                 
-                transactionFee = getFee(rawQar);
+                transactionFee = getFee(rawQar, selectedCurrency);
                 finalQar = rawQar - transactionFee - currentDeliveryFee;
                 
                 document.getElementById('to-amount-display').value = rawQar.toFixed(2);
@@ -402,17 +357,13 @@
                     return;
                 }
 
-                transactionFee = getFee(toAmount);
+                transactionFee = getFee(toAmount, selectedCurrency);
                 finalQar = toAmount - transactionFee - currentDeliveryFee;
 
                 let fromAmount;
-                if (currencyData.isTiered) {
-                    const rate = (toAmount >= 5001 && toAmount <= 10000) ? currencyData.rates.tier4 :
-                                 (toAmount >= 3001 && toAmount <= 5000) ? currencyData.rates.tier3 :
-                                 (toAmount >= 1501) ? currencyData.rates.tier2 :
-                                 currencyData.rates.tier1;
-                    fromAmount = toAmount * rate;
-                }
+                let rate = currencyData.rate;
+                fromAmount = toAmount * rate;
+                
                 document.getElementById('from-amount').value = fromAmount.toFixed(2);
                 updateDisplay(finalQar, transactionFee, currentDeliveryFee, selectedCurrency);
             }
@@ -436,20 +387,16 @@
             const qarAmount = parseFloat(document.getElementById('to-amount-display').value);
 
             if (qarAmount > 10000) {
-                highAmountWarning.classList.remove('hidden');
-                proceedButton.disabled = true;
-                proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
+                 highAmountWarning.classList.remove('hidden');
             } else {
-                highAmountWarning.classList.add('hidden');
-                proceedButton.disabled = false;
-                proceedButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                 highAmountWarning.classList.add('hidden');
             }
 
             if (qarAmount > 0 && qarAmount < minQAR) {
                 proceedButton.disabled = true;
                 proceedButton.classList.add('opacity-50', 'cursor-not-allowed');
                 amountWarning.classList.remove('hidden');
-            } else if (qarAmount >= minQAR && qarAmount <= 10000) {
+            } else if (qarAmount >= minQAR) {
                 proceedButton.disabled = false;
                 proceedButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 amountWarning.classList.add('hidden');
@@ -482,15 +429,16 @@
             const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
             const transactionFee = parseFloat(document.getElementById('transaction-fee').textContent);
             
-            let currentRate;
-            if (currencyData.isTiered) {
-                const qarAmount = parseFloat(document.getElementById('to-amount-display').value);
-                currentRate = (qarAmount >= 5001 && qarAmount <= 10000) ? currencyData.rates.tier4 :
-                              (qarAmount >= 3001) ? currencyData.rates.tier3 :
-                              (qarAmount >= 1501) ? currencyData.rates.tier2 :
-                              currencyData.rates.tier1;
+            let currentRate = currencyData.rate;
+            let transactionFeeText;
+            
+            const qarAmount = parseFloat(document.getElementById('to-amount-display').value);
+            if (qarAmount >= 2001 && qarAmount <= 10000) {
+                transactionFeeText = `1.1% of QAR amount`;
+            } else if (qarAmount > 10000) {
+                transactionFeeText = `1% of QAR amount`;
             } else {
-                currentRate = currencyData.rate;
+                transactionFeeText = '20.00 QAR';
             }
             
             let deliveryLocationText = 'N/A';
@@ -534,7 +482,7 @@
             const message = `*New Currency Exchange Request*\n\n` +
                                 `You Give (${currencyData.symbol}): ${fromAmount}\n` +
                                 `You Get (QAR): ${rawQar}\n\n` +
-                                `Transaction Fee: ${transactionFee.toFixed(2)} QAR\n` +
+                                `Transaction Fee: ${transactionFeeText}\n` +
                                 `Delivery Fee: ${deliveryFeeText}\n` +
                                 `*Total Charges: ${totalCharges.toFixed(2)} QAR*\n\n` +
                                 `*Final QAR to Receive: ${finalQar}*\n` +
