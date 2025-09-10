@@ -24,6 +24,38 @@
         .hidden {
             display: none;
         }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -184,6 +216,21 @@
             </svg>
         </button>
     </div>
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content text-center">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Confirm Order</h3>
+            <p class="text-gray-600 mb-6">Are you sure you want to place an order to exchange <b id="modal-from-amount"></b> for <b id="modal-to-amount"></b>?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="cancel-button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-xl transition-colors duration-200">
+                    Cancel
+                </button>
+                <button id="confirm-button" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl transition-colors duration-200">
+                    Confirm & Send to WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
     <script>
         // *** IMPORTANT: YOU MUST UPDATE THESE VARIABLES BEFORE USING THE SITE ***
         // 1. Your WhatsApp phone number in international format without the '+'
@@ -223,7 +270,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateUI();
             handleInput('from');
-            document.getElementById('proceed-button').addEventListener('click', proceedToWhatsApp);
+            document.getElementById('proceed-button').addEventListener('click', showConfirmationModal);
+            document.getElementById('cancel-button').addEventListener('click', hideConfirmationModal);
+            document.getElementById('confirm-button').addEventListener('click', () => {
+                hideConfirmationModal();
+                proceedToWhatsApp();
+            });
             toggleTransactionDetails();
             toggleTransferInputs();
         });
@@ -417,6 +469,24 @@
             document.getElementById('amount-warning').classList.add('hidden');
             document.getElementById('high-amount-warning').classList.add('hidden');
         }
+
+        // Show the confirmation modal with transaction details
+        function showConfirmationModal() {
+            const selectedCurrency = document.getElementById('currency-select').value;
+            const currencyData = currencies[selectedCurrency];
+            const fromAmount = parseFloat(document.getElementById('from-amount').value).toFixed(2);
+            const rawQar = parseFloat(document.getElementById('to-amount-display').value).toFixed(2);
+
+            document.getElementById('modal-from-amount').textContent = `${fromAmount} ${currencyData.symbol}`;
+            document.getElementById('modal-to-amount').textContent = `${rawQar} QAR`;
+            
+            document.getElementById('confirmation-modal').classList.add('open');
+        }
+
+        // Hide the confirmation modal
+        function hideConfirmationModal() {
+            document.getElementById('confirmation-modal').classList.remove('open');
+        }
         
         // Function to handle the WhatsApp message
         function proceedToWhatsApp() {
@@ -480,18 +550,18 @@
             const totalCharges = transactionFee + (transactionType === 'delivery' ? parseFloat(document.getElementById('delivery-fee').textContent) : 0);
             
             const message = `*New Currency Exchange Request*\n\n` +
-                                 `You Give (${currencyData.symbol}): ${fromAmount}\n` +
-                                 `You Get (QAR): ${rawQar}\n\n` +
-                                 `Transaction Fee: ${transactionFeeText}\n` +
-                                 `Delivery Fee: ${deliveryFeeText}\n` +
-                                 `*Total Charges: ${totalCharges.toFixed(2)} QAR*\n\n` +
-                                 `*Final QAR to Receive: ${finalQar}*\n` +
-                                 `Exchange Rate: 1 QAR = ${currentRate.toFixed(2)} ${currencyData.symbol}\n\n` +
-                                 `Transaction Type: ${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}\n` +
-                                 `Delivery Location: ${deliveryLocationText}` +
-                                 extraDetails +
-                                 `\n\nTransaction ID: #${transactionId}\n\n` +
-                                 `Please confirm availability to proceed.`;
+                                `You Give (${currencyData.symbol}): ${fromAmount}\n` +
+                                `You Get (QAR): ${rawQar}\n\n` +
+                                `Transaction Fee: ${transactionFeeText}\n` +
+                                `Delivery Fee: ${deliveryFeeText}\n` +
+                                `*Total Charges: ${totalCharges.toFixed(2)} QAR*\n\n` +
+                                `*Final QAR to Receive: ${finalQar}*\n` +
+                                `Exchange Rate: 1 QAR = ${currentRate.toFixed(2)} ${currencyData.symbol}\n\n` +
+                                `Transaction Type: ${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}\n` +
+                                `Delivery Location: ${deliveryLocationText}` +
+                                extraDetails +
+                                `\n\nTransaction ID: #${transactionId}\n\n` +
+                                `Please confirm availability to proceed.`;
             
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${whatsappPhoneNumber}?text=${encodedMessage}`;
