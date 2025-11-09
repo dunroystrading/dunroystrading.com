@@ -375,7 +375,7 @@
                             <div class="grid grid-cols-3 gap-2 text-sm text-gray-700 font-medium text-center">
                                 <!-- Header Row -->
                                 <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">QAR Range</div>
-                                <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">Rate (1 QAR = X ${currencyData.symbol})</div>
+                                <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">Rate </div>
                                 <div class="py-2 px-1 text-emerald-800 font-semibold border-b-2 border-emerald-200">Fee</div>
                                 <!-- Tiers -->
                                 <div class="py-2 px-1 text-green-700 font-semibold">100 - ${currencyData.tiers[0].maxQar.toLocaleString()}</div>
@@ -745,7 +745,7 @@
                                 `Email: ${emailAddress || 'Not Provided'}\n\n` +
                                 `*Order Details*\n` +
                                 `You Give (${currencyData.symbol}): ${fromAmount}\n` +
-                                `You Get (QAR, before charges): ${toAmount.toFixed(2)}\n\n` +
+                                `You Get (QAR,): ${toAmount.toFixed(2)}\n\n` +
                                 `Transaction Fee: ${transactionFeeText}\n` +
                                 `Delivery Fee: ${deliveryFeeText}\n` +
                                 `*Total Charges: ${totalCharges.toFixed(2)} QAR*\n\n` +
