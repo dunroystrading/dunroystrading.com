@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Down - We'll Be Right Back</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Status Card Container -->
+    <div class="w-full max-w-lg bg-white shadow-2xl rounded-xl p-8 sm:p-12 text-center border-t-4 border-indigo-600">
+        
+        <!-- Status Icon (Using inline SVG for a modern look) -->
+        <div class="mb-6">
+            <svg class="w-16 h-16 mx-auto text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.82 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.82 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.82-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.82-3.31 2.37-2.37.526.324 1.08.514 1.488.514z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+
+        <!-- Headline Message -->
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-4">
+            System Temporarily Down
+        </h1>
+
+        <!-- Primary Explanation -->
+        <p class="text-lg text-gray-600 mb-6">
+            We are currently performing essential maintenance or addressing an unexpected issue. We apologize for the inconvenience this may cause.
+        </p>
+
+        <!-- Estimated Availability/Instructions -->
+        <div class="p-4 sm:p-6 bg-indigo-50 rounded-lg shadow-inner mb-8">
+            <p class="font-semibold text-indigo-700 text-base sm:text-lg">
+                Please check back in a few minutes.
+            </p>
+            <p class="text-sm text-indigo-600 mt-2">
+                We are working hard to restore full service as quickly as possible.
+            </p>
+        </div>
+
+        <!-- Footer / Support Info -->
+        <p class="text-sm text-gray-400">
+            For critical support, please contact our emergency line.
+        </p>
+
+    </div>
+    <!-- End Status Card Container -->
+
+</body>
+</html>
+
