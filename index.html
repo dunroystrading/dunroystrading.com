@@ -1,1 +1,1041 @@
-...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shilings to QAR Exchange</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font --><style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background for the overall page */
+        }
+        /* Custom styling for smooth accordion transition */
+        .rates-container {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 1rem; 
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+        }
+        .rates-container.open {
+            max-height: 500px; /* Sufficient height to show the table */
+            padding: 1rem 1rem 0.5rem 1rem; /* Apply padding when open */
+        }
+        .rates-tab-active {
+            color: #10b981; /* primary-green */
+            border-bottom: 2px solid #10b981;
+            font-weight: 600;
+        }
+        .delivery-location-container {
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin 0.3s ease-out;
+            overflow: hidden;
+            margin-top: 0;
+        }
+        .delivery-location-container.show {
+            max-height: 100px; 
+            opacity: 1;
+            margin-top: 1rem;
+        }
+        /* Base Modal Styling for all popups */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease-out;
+            margin: 1rem; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            max-width: 400px; 
+            width: 90%;
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+        /* Specific Modal Background Colors */
+        .bank-modal-bg { background-color: #fff7e6; /* Cream/Yellow */ }
+        .client-modal-bg { background-color: #e0f7ed; /* Light Green/Teal */ }
+    </style>
+    <!-- Configure Tailwind for custom colors --><script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-green': '#10b981', 
+                        'bg-gray': '#f9fafb', 
+                        'text-dark': '#111827', 
+                        'border-light': '#e5e7eb', 
+                        'total-bg': '#e0f7ed', 
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-bg-gray rounded-xl shadow-xl overflow-hidden p-6 md:p-8">
+        <!-- Header --><header class="text-center mb-6">
+            <h1 class="text-xl font-bold text-text-dark">Currency Exchange</h1>
+            <p id="conversion-header" class="text-sm font-medium text-gray-500 mt-1">X to QAR</p>
+        </header>
+
+        <!-- Form Section --><form id="currency-form">
+            <!-- 1. Select Currency to Convert (Source Currency) --><div class="mb-4">
+                <label for="currency-select" class="block text-sm font-medium text-gray-700 mb-2">Select Currency to Convert</label>
+                <div class="relative">
+                    <select 
+                        id="currency-select" 
+                        class="block w-full py-3 px-4 pr-10 border border-border-light bg-white rounded-lg focus:ring-primary-green focus:border-primary-green appearance-none cursor-pointer text-gray-700 text-sm font-medium"
+                        onchange="updateExchangeAndUI('amount-give')"
+                    >
+                        <option value="KES" selected>Kenyan Shilling (KES)</option>
+                        <option value="UGX">Uganda Shilling (UGX)</option>
+                        <option value="TZS">Tanzanian Shilling (TZS)</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rates Accordion Button (Added relative z-10 to ensure clickability) -->
+            <div class="mb-4 -mx-6 -mt-1 px-6 relative z-10">
+                <button type="button" onclick="toggleRatesVisibility()" id="rates-toggle-button" class="w-full flex justify-between items-center p-3 rounded-lg bg-total-bg text-primary-green hover:bg-green-100 transition duration-150 cursor-pointer">
+                    <span class="flex items-center text-sm font-semibold">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span id="rates-toggle-text">View Exchange Rates (KES)</span>
+                    </span>
+                    <!-- Added transform class explicitly -->
+                    <svg id="rates-chevron" class="w-4 h-4 transform rotate-0 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                </button>
+            </div>
+
+            <!-- Rates Accordion Content --><div id="rates-content-container" class="rates-container">
+                <!-- Currency Tabs --><div class="flex border-b border-border-light mb-4">
+                    <button type="button" onclick="setRateCurrency('KES')" id="tab-KES" class="px-4 py-2 text-sm text-gray-500 hover:text-primary-green transition duration-150">KES</button>
+                    <button type="button" onclick="setRateCurrency('UGX')" id="tab-UGX" class="px-4 py-2 text-sm text-gray-500 hover:text-primary-green transition duration-150">UGX</button>
+                    <button type="button" onclick="setRateCurrency('TZS')" id="tab-TZS" class="px-4 py-2 text-sm text-gray-500 hover:text-primary-green transition duration-150">TZS</button>
+                </div>
+                <!-- Rates Table Content --><div id="rates-table-display" class="bg-white rounded-lg border border-border-light p-4 shadow-sm">
+                    <!-- Table will be dynamically inserted here --></div>
+            </div>
+
+
+            <!-- 2. You Give (Currency Code updated dynamically) -->
+            <!-- Primary input for amount to send -->
+            <div class="mb-4">
+                <label for="amount-give" id="give-label" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                    <!-- Red arrow icon for "You Give" --><svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    You Give (KES)
+                </label>
+                <input 
+                    type="number" 
+                    id="amount-give" 
+                    placeholder="Enter amount in KES" 
+                    class="w-full py-3 px-4 border-2 border-red-500 rounded-lg focus:ring-red-500 focus:border-red-500 text-gray-900 placeholder-gray-400 text-sm" 
+                    value="0" 
+                    oninput="updateExchangeAndUI(this.id)"
+                >
+            </div>
+
+            <!-- 3. You Get (QAR) -->
+            <!-- Now an input field for two-way conversion -->
+            <div class="mb-6">
+                <label for="amount-get" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                    <!-- Green arrow icon for "You Get" --><svg class="w-4 h-4 mr-1 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
+                    You Get (Net QAR)
+                </label>
+                <input 
+                    type="number"
+                    id="amount-get" 
+                    placeholder="Type desired amount in QAR"
+                    class="w-full py-3 px-4 border-2 border-primary-green rounded-lg focus:ring-primary-green focus:border-primary-green text-gray-900 placeholder-gray-400 text-base font-bold"
+                    value="0"
+                    oninput="updateExchangeAndUI(this.id)"
+                >
+            </div>
+            
+            <!-- Minimum Required Net Amount Warning --><div id="minimum-amount-warning" class="hidden bg-red-100 border border-red-300 text-red-700 rounded-xl p-3 mb-6" role="alert">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                    <span class="font-medium text-sm">Minimum required net amount is <span class="font-extrabold">100.00 QAR</span>.</span>
+                </div>
+            </div>
+
+            <!-- Transaction Details Box --><div class="bg-white rounded-xl p-4 mb-6 border border-border-light shadow-sm">
+                <!-- Current Rate Display --><div class="flex justify-between text-sm mb-2 text-gray-600">
+                    <span id="current-rate-label">Current Rate:</span>
+                    <span id="current-rate-value">KES/QAR</span>
+                </div>
+                
+                <!-- Transaction Fee --><div class="flex justify-between text-sm mb-2 text-gray-600">
+                    <span>Transaction Fee:</span>
+                    <span id="transaction-fee">0.00 QAR</span>
+                </div>
+
+                <!-- Delivery Fee --><div class="flex justify-between text-sm mb-4 text-gray-600">
+                    <span>Delivery Fee:</span>
+                    <span id="delivery-fee">0.00 QAR</span>
+                </div>
+                
+                <hr class="border-border-light mb-4">
+
+                <!-- Total Charges --><div class="flex justify-between items-center text-sm font-bold text-text-dark">
+                    <span>Total Charges:</span>
+                    <span id="total-charges">0.00 QAR</span>
+                </div>
+            </div>
+
+            <!-- 4. Transaction Type Radio Buttons --><div class="mb-4">
+                <p class="block text-sm font-medium text-gray-700 mb-3">Transaction Type</p>
+                <div class="flex space-x-4 justify-between md:justify-start md:space-x-8" onchange="handleTransactionTypeChange()">
+                    <!-- Pick Up (Default) --><label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="transaction-type" value="pickup" class="form-radio h-4 w-4 text-primary-green border-gray-300 focus:ring-primary-green" checked>
+                        <span class="ml-2 text-sm text-gray-700">Pick Up</span>
+                    </label>
+                    <!-- Delivery --><label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="transaction-type" value="delivery" class="form-radio h-4 w-4 text-primary-green border-gray-300 focus:ring-primary-green">
+                        <span class="ml-2 text-sm text-gray-700">Delivery</span>
+                    </label>
+                    <!-- Bank/Wallet --><label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="transaction-type" value="bank" class="form-radio h-4 w-4 text-primary-green border-gray-300 focus:ring-primary-green">
+                        <span class="ml-2 text-sm text-gray-700">Bank/Wallet</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 4b. Delivery Location Dropdown (Conditionally Visible) --><div id="delivery-location-wrapper" class="delivery-location-container">
+                <label for="delivery-location-select" class="block text-sm font-medium text-gray-700 mb-2">Delivery Location</label>
+                <div class="relative">
+                    <select 
+                        id="delivery-location-select" 
+                        class="block w-full py-3 px-4 pr-10 border border-border-light bg-white rounded-lg focus:ring-primary-green focus:border-primary-green appearance-none cursor-pointer text-gray-700 text-sm font-medium"
+                        onchange="updateExchangeAndUI(null)"
+                    >
+                        <option value="doha" selected>Within Doha (15 QAR)</option>
+                        <option value="outside_doha">Outside Doha (25 QAR)</option>
+                        <option value="far_doha">Far from Doha (35 QAR)</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 5. Total You Will Receive Box (Green Background) --><div class="bg-total-bg text-center rounded-xl p-4 mt-6 mb-6">
+                <p class="text-sm font-semibold text-primary-green mb-1">Total You Will Receive</p>
+                <p class="text-2xl font-extrabold text-primary-green">
+                    <span id="total-receive">0.00</span>
+                    <span class="text-lg font-semibold ml-1">QAR</span>
+                </p>
+            </div>
+
+            <!-- 6. Place Order Button (Now opens Client Details Modal) --><button type="button" onclick="openClientDetailsModal()" class="w-full bg-primary-green hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-lg transition duration-150 ease-in-out flex items-center justify-center">
+                Place Order
+                <!-- Chat icon (using SVG for high fidelity to the image) --><svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+            </button>
+        </form>
+    </div>
+
+    <!-- 1. Bank Transfer Modal/Popup (Initially Hidden) -->
+    <div id="bank-transfer-modal" class="modal-overlay">
+        <div class="modal-content bank-modal-bg rounded-xl shadow-2xl p-6 relative">
+            
+            <!-- Close Button (X icon) -->
+            <button onclick="closeBankModal()" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <!-- Header -->
+            <div class="flex items-center text-lg font-semibold text-gray-800 mb-4 border-b border-yellow-300 pb-2">
+                <!-- Coin/Bank Icon -->
+                <svg class="w-6 h-6 mr-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Recipient Transfer Details
+            </div>
+
+            <form id="bank-wallet-form">
+                <!-- 1. Bank Transfer Method Selection -->
+                <p class="text-sm font-medium text-gray-700 mb-2">Select Bank Transfer Type</p>
+                <div class="flex space-x-4 mb-4" onchange="handleBankDetailsChange()">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="bank-method" value="iban" id="radio-iban" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600" checked>
+                        <span class="ml-2 text-sm text-gray-700 font-medium">Bank Name & IBAN</span>
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="bank-method" value="fawran" id="radio-fawran" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600">
+                        <span class="ml-2 text-sm text-gray-700 font-medium">Fawran / Account No.</span>
+                    </label>
+                </div>
+
+                <!-- IBAN/Fawran Conditionally Visible Fields -->
+                <div id="bank-fields">
+                    <!-- IBAN Fields (Default) -->
+                    <div id="iban-fields-group">
+                        <div class="mb-3">
+                            <input type="text" id="input-bank-name" placeholder="Recipient Bank Name (e.g., QNB)" class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" required>
+                        </div>
+                        <div class="mb-6">
+                            <input type="text" id="input-iban" placeholder="Recipient IBAN No." class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Fawran Fields (Initially Hidden) -->
+                    <div id="fawran-fields-group" class="hidden">
+                        <div class="mb-3">
+                            <input type="text" id="input-fawran-name" placeholder="Recipient Fawran Name" class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" required disabled>
+                        </div>
+                        <div class="mb-6">
+                            <input type="text" id="input-fawran-account" placeholder="Recipient Account No." class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" required disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Mobile Wallet Section -->
+                <p class="text-sm font-medium text-gray-700 mb-2 border-t border-yellow-300 pt-4 mt-4">Select Mobile Wallet Provider</p>
+                <div class="flex space-x-4 mb-4" onchange="handleWalletProviderChange()">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="wallet-provider" value="ooredoo" id="radio-ooredoo" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600" checked>
+                        <span class="ml-2 text-sm text-gray-700 font-medium">Ooredoo Mobile Wallet</span>
+                    </label>
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="radio" name="wallet-provider" value="i-pay" id="radio-i-pay" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600">
+                        <span class="ml-2 text-sm text-gray-700 font-medium">I-Pay Mobile Wallet</span>
+                    </label>
+                </div>
+                <div class="mb-6">
+                    <input 
+                        type="text" 
+                        id="input-wallet-number"
+                        placeholder="Ooredoo Wallet Number" 
+                        class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" 
+                        required
+                    >
+                </div>
+
+                <!-- Save and Close Button -->
+                <button type="button" onclick="saveBankDetails()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-150 ease-in-out">
+                    Save Details & Continue
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Client Details Modal/Popup (Triggered by Place Order) -->
+    <div id="client-details-modal" class="modal-overlay">
+        <div class="modal-content client-modal-bg rounded-xl shadow-2xl p-6 relative">
+            
+            <!-- Close Button (X icon) -->
+            <button onclick="closeClientDetailsModal()" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <!-- Header -->
+            <div class="flex items-center text-lg font-semibold text-gray-800 mb-4 border-b border-primary-green pb-2">
+                <!-- User Icon -->
+                <svg class="w-6 h-6 mr-3 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                Confirm Client Details
+            </div>
+
+            <form id="client-details-form">
+                <p class="text-sm text-gray-700 mb-4">Please enter your contact information to finalize the order.</p>
+
+                <!-- Full Name -->
+                <div class="mb-4">
+                    <label for="input-full-name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <input 
+                        type="text" 
+                        id="input-full-name" 
+                        placeholder="e.g., William Samoei Ruto" 
+                        class="w-full py-3 px-4 border border-primary-green bg-white rounded-lg focus:ring-primary-green focus:border-primary-green text-gray-700 text-sm" 
+                        required
+                        oninput="validateClientForm()"
+                    >
+                </div>
+
+                <!-- Qatar Phone Number -->
+                <div class="mb-6">
+                    <label for="input-phone-number" class="block text-sm font-medium text-gray-700 mb-2">Qatar Phone Number</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <span class="text-gray-500 font-bold sm:text-sm">+974</span>
+                        </div>
+                        <input 
+                            type="tel" 
+                            id="input-phone-number" 
+                            placeholder="3130 9960" 
+                            pattern="[0-9]{8}"
+                            maxlength="8"
+                            minlength="8"
+                            class="w-full py-3 pl-14 pr-4 border border-primary-green bg-white rounded-lg focus:ring-primary-green focus:border-primary-green text-gray-700 text-sm" 
+                            required
+                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); validateClientForm();"
+                        >
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Enter your 8-digit mobile number.</p>
+                </div>
+
+                <!-- Final Submit Button (Initially Disabled) -->
+                <button 
+                    type="button" 
+                    id="confirm-order-btn"
+                    onclick="finalizeOrder()" 
+                    disabled
+                    class="w-full bg-primary-green hover:bg-teal-600 text-white font-semibold py-3 rounded-xl shadow-lg transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Confirm & Send Order
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // State variables
+        let isRatesVisible = false;
+        let selectedRateCurrency = 'KES'; 
+
+        // CONSTANT: Minimum required QAR net amount for a transaction
+        const MINIMUM_QAR_NET = 100.00; // QAR
+
+        // Tiered rate structure (Source Currency per 1 QAR).
+        const CURRENCY_RATES = {
+            'KES': [
+                { max: 2000, range: '0 - 2,000', rate: 36.00, fee: 0.00 },
+                { max: 10000, range: '2,001 - 10,000', rate: 36.00, fee: 0.00 },
+                { max: Infinity, range: '10,001 - above', rate: 35.90, fee: 0.00 }
+            ],
+            'UGX': [
+                { max: 2000, range: '0 - 2,000', rate: 990, fee: 15.00 },
+                { max: 10000, range: '2,001 - 10,000', rate: 988, fee: 15.00 },
+                { max: Infinity, range: '10,001 - above', rate: 985, fee: 15.00 }
+            ],
+            'TZS': [
+                { max: 2000, range: '0 - 2,000', rate: 680, fee: 15.00 },
+                { max: 10000, range: '2,001 - 10,000', rate: 678, fee: 15.00 },
+                { max: Infinity, range: '10,001 - above', rate: 675, fee: 15.00 }
+            ]
+        };
+
+        // NEW: Delivery Fees based on location
+        const DELIVERY_FEES = {
+            'pickup': 0.00,
+            'bank': 0.00,
+            'doha': 15.00, // Within Doha
+            'outside_doha': 25.00, // Outside Doha
+            'far_doha': 35.00 // Far from Doha
+        };
+        
+        // Storage for Recipient Details (simulated)
+        let recipientDetails = { 
+            method: 'pickup', // Default
+            bank: null, 
+            wallet: null, 
+            location: 'doha' 
+        };
+        
+        // Storage for Client Details (simulated)
+        let clientDetails = {
+            fullName: '',
+            phoneNumber: ''
+        };
+
+        // --- Modal Control Functions ---
+
+        /**
+         * Opens the Bank Transfer Modal.
+         */
+        function openBankModal() {
+            document.getElementById('bank-transfer-modal').classList.add('open');
+        }
+
+        /**
+         * Closes the Bank Transfer Modal.
+         */
+        function closeBankModal() {
+            document.getElementById('bank-transfer-modal').classList.remove('open');
+        }
+        
+        /**
+         * Opens the Client Details Modal.
+         */
+        function openClientDetailsModal() {
+             // Basic validation check before opening the final modal
+            const amountReceivedQAR = parseFloat(document.getElementById('amount-get').value) || 0;
+             if (amountReceivedQAR < MINIMUM_QAR_NET) {
+                // We show the warning on the UI, no need for a pop-up alert.
+                return; 
+            }
+
+            // Prefill if previously entered
+            document.getElementById('input-full-name').value = clientDetails.fullName;
+            document.getElementById('input-phone-number').value = clientDetails.phoneNumber;
+            
+            // Run validation immediately to check if button should be enabled (e.g. if prefilled)
+            validateClientForm();
+
+            document.getElementById('client-details-modal').classList.add('open');
+        }
+
+        /**
+         * Closes the Client Details Modal.
+         */
+        function closeClientDetailsModal() {
+            document.getElementById('client-details-modal').classList.remove('open');
+        }
+
+        /**
+         * Validates the client form in real-time to enable/disable the submit button.
+         */
+        function validateClientForm() {
+            const nameInput = document.getElementById('input-full-name');
+            const phoneInput = document.getElementById('input-phone-number');
+            const submitBtn = document.getElementById('confirm-order-btn');
+
+            const nameValid = nameInput.value.trim().length > 0;
+            const phoneValid = phoneInput.value.trim().length === 8; // Strictly 8 digits
+
+            if (nameValid && phoneValid) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // --- Bank/Wallet Modal Logic ---
+
+        /**
+         * Toggles visibility and required/disabled state for IBAN vs Fawran fields.
+         */
+        function handleBankDetailsChange() {
+            const isIBAN = document.getElementById('radio-iban').checked;
+            
+            const ibanGroup = document.getElementById('iban-fields-group');
+            const fawranGroup = document.getElementById('fawran-fields-group');
+
+            const ibanInputs = [document.getElementById('input-bank-name'), document.getElementById('input-iban')];
+            const fawranInputs = [document.getElementById('input-fawran-name'), document.getElementById('input-fawran-account')];
+
+            if (isIBAN) {
+                ibanGroup.classList.remove('hidden');
+                fawranGroup.classList.add('hidden');
+                
+                ibanInputs.forEach(input => input.required = true);
+                fawranInputs.forEach(input => input.required = false);
+                fawranInputs.forEach(input => input.disabled = true);
+                ibanInputs.forEach(input => input.disabled = false);
+
+            } else {
+                ibanGroup.classList.add('hidden');
+                fawranGroup.classList.remove('hidden');
+
+                ibanInputs.forEach(input => input.required = false);
+                ibanInputs.forEach(input => input.disabled = true);
+                fawranInputs.forEach(input => input.required = true);
+                fawranInputs.forEach(input => input.disabled = false);
+            }
+        }
+        
+        /**
+         * Updates the placeholder for the wallet number input based on selected provider.
+         */
+        function handleWalletProviderChange() {
+            const isOoredoo = document.getElementById('radio-ooredoo').checked;
+            const walletInput = document.getElementById('input-wallet-number');
+
+            if (isOoredoo) {
+                walletInput.placeholder = "Ooredoo Wallet Number (e.g., 55XXXXXX)";
+            } else {
+                walletInput.placeholder = "I-Pay Mobile Wallet Number (e.g., 55XXXXXX)";
+            }
+        }
+
+        /**
+         * Handles saving recipient details and closing the modal.
+         */
+        function saveBankDetails() {
+            const form = document.getElementById('bank-wallet-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const selectedBankMethod = document.querySelector('input[name="bank-method"]:checked').value;
+            const selectedWalletProvider = document.querySelector('input[name="wallet-provider"]:checked').value;
+            
+            let bankData = null;
+            if (selectedBankMethod === 'iban') {
+                bankData = {
+                    type: 'IBAN',
+                    bankName: document.getElementById('input-bank-name').value,
+                    iban: document.getElementById('input-iban').value
+                };
+            } else {
+                 bankData = {
+                    type: 'Fawran',
+                    fawranName: document.getElementById('input-fawran-name').value,
+                    accountNo: document.getElementById('input-fawran-account').value
+                };
+            }
+            
+            const walletData = {
+                provider: selectedWalletProvider,
+                number: document.getElementById('input-wallet-number').value
+            };
+
+            // Save details to the global state
+            recipientDetails.bank = bankData;
+            recipientDetails.wallet = walletData;
+            
+            console.log("Recipient Details Saved:", { bank: bankData, wallet: walletData });
+            
+            closeBankModal();
+        }
+
+        // --- Client Details and Final Order Logic ---
+
+        /**
+         * Handles saving client details and triggering the final order summary/submission via WhatsApp.
+         */
+        function finalizeOrder() {
+            const form = document.getElementById('client-details-form');
+            const phoneInput = document.getElementById('input-phone-number');
+            const phoneVal = phoneInput.value.trim();
+
+            // Double-check validation (though button is disabled, this is a safety net)
+            if (phoneVal.length !== 8) {
+                phoneInput.setCustomValidity("Please enter a valid 8-digit Qatar mobile number.");
+                phoneInput.reportValidity();
+                return;
+            } else {
+                phoneInput.setCustomValidity("");
+            }
+
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            // Save client details to global state
+            clientDetails.fullName = document.getElementById('input-full-name').value;
+            clientDetails.phoneNumber = phoneVal;
+
+            // Gather all transaction data
+            const amountGive = parseFloat(document.getElementById('amount-give').value).toFixed(2);
+            const amountGet = parseFloat(document.getElementById('amount-get').value).toFixed(2);
+            const currency = document.getElementById('currency-select').value;
+            const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
+            
+            // Retrieve fees from the DOM
+            const transactionFeeText = document.getElementById('transaction-fee').textContent;
+            const deliveryFeeText = document.getElementById('delivery-fee').textContent;
+            const totalChargesText = document.getElementById('total-charges').textContent;
+
+            // Generate Random Transaction ID
+            const transactionId = "#" + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+            // Determine specific transaction data for the summary
+            let transactionSpecifics = '';
+            let deliveryLocationDisplay = 'N/A';
+            let transactionTypeDisplay = transactionType.charAt(0).toUpperCase() + transactionType.slice(1); // Capitalize
+
+            if (transactionType === 'delivery') {
+                const locationKey = document.getElementById('delivery-location-select').value;
+                const locationMap = {
+                    'doha': 'Within Doha',
+                    'outside_doha': 'Outside Doha',
+                    'far_doha': 'Far from Doha'
+                };
+                deliveryLocationDisplay = locationMap[locationKey] || locationKey;
+            } else if (transactionType === 'bank') {
+                transactionTypeDisplay = 'Bank/Wallet Transfer';
+                // Add bank details if available
+                if (recipientDetails.bank) {
+                     const bankMethod = recipientDetails.bank.type;
+                     const bankName = recipientDetails.bank.bankName || recipientDetails.bank.fawranName;
+                     const walletProvider = recipientDetails.wallet.provider === 'ooredoo' ? 'Ooredoo Wallet' : 'I-Pay Wallet';
+                     const walletNum = recipientDetails.wallet.number;
+                     
+                     transactionSpecifics = `\n*Recipient Details:*\nType: ${bankMethod} (${bankName})\nWallet: ${walletProvider} (${walletNum})`;
+                }
+            } else {
+                transactionTypeDisplay = 'Pick Up';
+            }
+
+            // ---------------------------------------------------------
+            // BUILD WHATSAPP MESSAGE
+            // ---------------------------------------------------------
+            const message = `
+*New Currency Exchange Request:*
+Name: ${clientDetails.fullName}
+Contact: +974 ${clientDetails.phoneNumber}
+
+*Transaction Summary:*
+Customer Gives (${currency}): ${amountGive}
+Customer Gets (QAR, final): ${amountGet}
+
+Transaction Fee: ${transactionFeeText}
+Delivery Fee: ${deliveryFeeText}
+*Total Charges: ${totalChargesText}*
+
+*Final QAR to Receive: ${amountGet}*
+Exchange Rate: 1 QAR = ${parseFloat(amountGive / amountGet).toFixed(2)} ${currency}
+
+Transaction Type: ${transactionTypeDisplay}
+Delivery Location: ${deliveryLocationDisplay}
+${transactionSpecifics}
+
+Transaction ID: ${transactionId}
+
+*_Please confirm availability to proceed_*.
+`.trim();
+
+            // Encode for URL
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/97431309960?text=${encodedMessage}`;
+
+            // Close the modal
+            closeClientDetailsModal();
+
+            // Open WhatsApp
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // --- Core Calculator Logic ---
+
+        /**
+         * Determines the current delivery fee based on selected transaction type and location.
+         * @returns {number} The applicable delivery fee in QAR.
+         */
+        function calculateDeliveryFee() {
+            // Check if recipientDetails is defined to prevent crash
+            if (typeof recipientDetails === 'undefined') return 0;
+
+            const selectedTypeElement = document.querySelector('input[name="transaction-type"]:checked');
+            if (!selectedTypeElement) return 0; // Safety check
+            
+            const selectedType = selectedTypeElement.value;
+
+            if (selectedType === 'delivery') {
+                const selectedLocationElement = document.getElementById('delivery-location-select');
+                const selectedLocation = selectedLocationElement ? selectedLocationElement.value : 'doha';
+                
+                // Update recipient state
+                recipientDetails.method = 'delivery';
+                recipientDetails.location = selectedLocation;
+                return DELIVERY_FEES[selectedLocation] || DELIVERY_FEES['doha'];
+            } else if (selectedType === 'bank') {
+                recipientDetails.method = 'bank';
+                return DELIVERY_FEES['bank'];
+            } else {
+                recipientDetails.method = 'pickup';
+                return DELIVERY_FEES['pickup'];
+            }
+        }
+
+        /**
+         * Handles the visibility of the Delivery Location dropdown and Bank Modal when transaction type changes.
+         */
+        function handleTransactionTypeChange() {
+            const selectedType = document.querySelector('input[name="transaction-type"]:checked').value;
+            const locationWrapper = document.getElementById('delivery-location-wrapper');
+            
+            // 1. Handle Delivery Location visibility
+            if (selectedType === 'delivery') {
+                locationWrapper.classList.add('show');
+            } else {
+                locationWrapper.classList.remove('show');
+            }
+
+            // 2. Handle Bank Modal visibility
+            if (selectedType === 'bank') {
+                // Open the modal when 'Bank/Wallet' is selected
+                openBankModal();
+            } else {
+                // Ensure modal is closed if switching away from 'Bank/Wallet'
+                closeBankModal();
+            }
+            
+            // 3. Recalculate fees when transaction type changes
+            updateExchangeAndUI(null); 
+        }
+
+        /**
+         * Sets the currency for the rates table and re-renders the table and tabs.
+         * @param {string} currencyCode - The currency code to display rates for.
+         */
+        function setRateCurrency(currencyCode) {
+            selectedRateCurrency = currencyCode;
+            // Update tabs visually
+            ['KES', 'UGX', 'TZS'].forEach(code => {
+                const tab = document.getElementById(`tab-${code}`);
+                if (code === currencyCode) {
+                    tab.classList.add('rates-tab-active');
+                } else {
+                    tab.classList.remove('rates-tab-active');
+                }
+            });
+            // Re-render the table content
+            renderRateTable(currencyCode);
+        }
+
+        /**
+         * Toggles the visibility of the exchange rates table accordion.
+         */
+        function toggleRatesVisibility() {
+            const container = document.getElementById('rates-content-container');
+            const chevron = document.getElementById('rates-chevron');
+            isRatesVisible = !isRatesVisible;
+            
+            if (isRatesVisible) {
+                container.classList.add('open');
+                chevron.classList.remove('rotate-0');
+                chevron.classList.add('rotate-180');
+                // Ensure the rate table is rendered when opening
+                renderRateTable(selectedRateCurrency);
+            } else {
+                container.classList.remove('open');
+                chevron.classList.remove('rotate-180');
+                chevron.classList.add('rotate-0');
+            }
+        }
+
+        /**
+         * Renders the HTML table for the current currency's rate bands.
+         * @param {string} currencyCode - The selected currency code (e.g., 'KES').
+         */
+        function renderRateTable(currencyCode) {
+            const bands = CURRENCY_RATES[currencyCode] || [];
+            const container = document.getElementById('rates-table-display');
+            
+            let tableHTML = `
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-500 font-medium border-b border-border-light">
+                            <th class="py-2 pr-2">Range (QAR)</th>
+                            <th class="py-2 pr-2">Rate (1 QAR = ${currencyCode})</th>
+                            <th class="py-2">Fee</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            bands.forEach(band => {
+                // Determine fee display (0.00 QAR or 0%)
+                const feeDisplay = band.fee === 0 ? '0%' : `${band.fee.toFixed(2)} QAR`;
+
+                tableHTML += `
+                        <tr class="text-text-dark border-b border-gray-100 last:border-b-0">
+                            <td class="py-2 pr-2">${band.range}</td>
+                            <td class="py-2 pr-2 font-semibold text-primary-green">${band.rate.toFixed(2)}</td>
+                            <td class="py-2">${feeDisplay}</td>
+                        </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        /**
+         * Calculates the exchange amount based on tiered rates and updates the UI.
+         * Handles two-way calculation based on which input was changed last.
+         * @param {string} changedInputId - 'amount-give' or 'amount-get' (null if called by transaction type/location change)
+         */
+        function updateExchangeAndUI(changedInputId = 'amount-give') {
+            const currencySelect = document.getElementById('currency-select');
+            const selectedCurrency = currencySelect.value;
+            
+            // 1. Get Elements
+            const amountGiveInput = document.getElementById('amount-give');
+            const amountGetInput = document.getElementById('amount-get'); 
+            const totalReceiveEl = document.getElementById('total-receive');
+            const transactionFeeEl = document.getElementById('transaction-fee');
+            const deliveryFeeEl = document.getElementById('delivery-fee');
+            const totalChargesEl = document.getElementById('total-charges');
+            const giveLabel = document.getElementById('give-label');
+            const conversionHeader = document.getElementById('conversion-header');
+            const currentRateValueEl = document.getElementById('current-rate-value');
+            const ratesToggleTextEl = document.getElementById('rates-toggle-text');
+            const minWarningEl = document.getElementById('minimum-amount-warning');
+
+            // Get current values (handle empty or invalid inputs safely)
+            let amountGiven = parseFloat(amountGiveInput.value);
+            if (isNaN(amountGiven)) amountGiven = 0;
+
+            let amountReceivedQAR = parseFloat(amountGetInput.value);
+            if (isNaN(amountReceivedQAR)) amountReceivedQAR = 0;
+            
+            // Determine the calculation direction
+            // If called by system (null), check which field is focused to decide direction
+            const lastActiveInput = document.activeElement ? document.activeElement.id : '';
+            const isCalculatingFromQAR = changedInputId === 'amount-get' || (changedInputId === null && lastActiveInput === 'amount-get');
+
+            // 2. Update descriptive labels and setup
+            giveLabel.innerHTML = `<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>You Give (${selectedCurrency})`;
+            conversionHeader.textContent = `${selectedCurrency} to QAR`;
+            ratesToggleTextEl.textContent = `View Exchange Rates (${selectedCurrency})`;
+            
+            // Ensure the rate table matches the selection
+            if (selectedRateCurrency !== selectedCurrency) {
+                 setRateCurrency(selectedCurrency);
+            } else {
+                 renderRateTable(selectedRateCurrency);
+            }
+            
+            let selectedRate = 0;
+            let transactionFee = 0;
+            const bands = CURRENCY_RATES[selectedCurrency];
+            
+            // NEW: Get the dynamic delivery fee BEFORE calculation
+            let deliveryFee = calculateDeliveryFee(); 
+            if (isNaN(deliveryFee)) deliveryFee = 0;
+
+            const epsilon = 0.0001; 
+
+            // 3. Main Calculation Logic
+            
+            if (!isCalculatingFromQAR) {
+                // --- DIRECTION: Source Currency (GIVE) -> QAR (GET) ---
+                
+                if (amountGiven === 0) {
+                    amountReceivedQAR = 0;
+                    transactionFee = bands[0].fee;
+                    selectedRate = bands[0].rate;
+                } else {
+                    // Find the rate based on the estimated QAR received
+                    for (const band of bands) {
+                        // Gross QAR = Give / Rate
+                        // Net QAR = Gross QAR - Transaction Fee - Delivery Fee
+                        const grossQAR = amountGiven / band.rate;
+                        const netQAR = grossQAR - band.fee - deliveryFee;
+                        
+                        // We check the band based on the resulting Net QAR
+                        if (netQAR <= band.max + epsilon || band.max === Infinity) {
+                            amountReceivedQAR = netQAR;
+                            transactionFee = band.fee;
+                            selectedRate = band.rate;
+                            break;
+                        }
+                    }
+                }
+                
+                // Update the 'You Get' input field with the calculated QAR amount
+                const finalVal = Math.max(0, amountReceivedQAR).toFixed(2);
+                amountGetInput.value = finalVal;
+                // Sync our local variable for the summary display below
+                amountReceivedQAR = parseFloat(finalVal);
+
+            } else {
+                // --- DIRECTION: QAR (GET) -> Source Currency (GIVE) ---
+                
+                 if (amountReceivedQAR === 0) {
+                    amountGiven = 0;
+                    transactionFee = bands[0].fee;
+                    selectedRate = bands[0].rate;
+                 } else {
+                    // Find the rate based on the QAR amount requested
+                    for (const band of bands) {
+                        if (amountReceivedQAR <= band.max + epsilon || band.max === Infinity) {
+                            // Calculation: 
+                            // Net = Gross - TxnFee - DeliveryFee
+                            // Gross = Net + TxnFee + DeliveryFee
+                            // Give = Gross * Rate
+                            amountGiven = (amountReceivedQAR + band.fee + deliveryFee) * band.rate;
+                            
+                            transactionFee = band.fee;
+                            selectedRate = band.rate;
+                            break;
+                        }
+                    }
+                 }
+
+                const finalVal = Math.max(0, amountGiven).toFixed(2);
+                amountGiveInput.value = finalVal;
+            }
+            
+            // 4. Calculate total charges and final output
+            const totalCharges = transactionFee + deliveryFee;
+            
+            // 5. Update UI fields
+            const finalQARFormatted = Math.max(0, amountReceivedQAR).toFixed(2);
+            
+            // a) Show/hide minimum amount warning based on MINIMUM_QAR_NET
+            if (amountReceivedQAR < MINIMUM_QAR_NET && amountReceivedQAR > 0) {
+                minWarningEl.classList.remove('hidden');
+            } else {
+                minWarningEl.classList.add('hidden');
+            }
+
+            // Determine fee display for transaction detail box
+            const feeDisplayDetail = transactionFee === 0 ? '0.00 QAR' : `${transactionFee.toFixed(2)} QAR`;
+
+            currentRateValueEl.textContent = `${selectedRate.toFixed(2)} ${selectedCurrency}/QAR`;
+            transactionFeeEl.textContent = feeDisplayDetail;
+            
+            // Update delivery fee display
+            deliveryFeeEl.textContent = deliveryFee.toFixed(2) + ' QAR'; 
+            
+            totalChargesEl.textContent = totalCharges.toFixed(2) + ' QAR';
+            
+            totalReceiveEl.textContent = finalQARFormatted;
+        }
+
+        // Initialization Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const amountGiveInput = document.getElementById('amount-give');
+            const amountGetInput = document.getElementById('amount-get');
+            
+            if (!amountGiveInput.value) { amountGiveInput.value = '3600.00'; }
+            if (!amountGetInput.value) { amountGetInput.value = '0.00'; }
+
+            // Initialize the currency rate selector to KES
+            selectedRateCurrency = 'KES'; 
+            setRateCurrency('KES');
+
+            // Initialize bank details visibility and required attributes
+            handleBankDetailsChange();
+            // Initialize wallet provider placeholder
+            handleWalletProviderChange();
+
+            // Initialize delivery location visibility (should be hidden by default for "Pick Up")
+            handleTransactionTypeChange();
+            
+            // Initial calculation and UI update
+            updateExchangeAndUI('amount-give');
+            
+            // Set initial state for the rates container (closed)
+            const container = document.getElementById('rates-content-container');
+            container.classList.remove('open');
+            document.getElementById('rates-chevron').classList.add('rotate-0');
+        });
+        
+    </script>
+</body>
+</html>
