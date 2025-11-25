@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shilings to QAR Exchange</title>
+    <title>Currency Exchange</title>
     <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter font --><style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
@@ -153,7 +153,7 @@
                     id="amount-give" 
                     placeholder="Enter amount in KES" 
                     class="w-full py-3 px-4 border-2 border-red-500 rounded-lg focus:ring-red-500 focus:border-red-500 text-gray-900 placeholder-gray-400 text-sm" 
-                    value="0" 
+                    
                     oninput="updateExchangeAndUI(this.id)"
                 >
             </div>
@@ -163,14 +163,14 @@
             <div class="mb-6">
                 <label for="amount-get" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                     <!-- Green arrow icon for "You Get" --><svg class="w-4 h-4 mr-1 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg>
-                    You Get (Net QAR)
+                    You Get (Gross QAR)
                 </label>
                 <input 
                     type="number"
                     id="amount-get" 
                     placeholder="Type desired amount in QAR"
                     class="w-full py-3 px-4 border-2 border-primary-green rounded-lg focus:ring-primary-green focus:border-primary-green text-gray-900 placeholder-gray-400 text-base font-bold"
-                    value="0"
+                    
                     oninput="updateExchangeAndUI(this.id)"
                 >
             </div>
@@ -178,14 +178,14 @@
             <!-- Minimum Required Net Amount Warning --><div id="minimum-amount-warning" class="hidden bg-red-100 border border-red-300 text-red-700 rounded-xl p-3 mb-6" role="alert">
                 <div class="flex items-center">
                     <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                    <span class="font-medium text-sm"> * Minimum order amount is  <span class="font-extrabold">100.00 QAR *</span>.</span>
+                    <span class="font-medium text-sm">Minimum required net amount is <span class="font-extrabold">100.00 QAR</span>.</span>
                 </div>
             </div>
 
             <!-- Transaction Details Box --><div class="bg-white rounded-xl p-4 mb-6 border border-border-light shadow-sm">
                 <!-- Current Rate Display --><div class="flex justify-between text-sm mb-2 text-gray-600">
                     <span id="current-rate-label">Current Rate:</span>
-                    <span id="current-rate-value">KES/QAR</span>
+                    <span id="current-rate-value">0.00 KES/QAR</span>
                 </div>
                 
                 <!-- Transaction Fee --><div class="flex justify-between text-sm mb-2 text-gray-600">
@@ -244,7 +244,7 @@
 
 
             <!-- 5. Total You Will Receive Box (Green Background) --><div class="bg-total-bg text-center rounded-xl p-4 mt-6 mb-6">
-                <p class="text-sm font-semibold text-primary-green mb-1">Total You Will Receive</p>
+                <p class="text-sm font-semibold text-primary-green mb-1">Total You Will Receive (Net QAR)</p>
                 <p class="text-2xl font-extrabold text-primary-green">
                     <span id="total-receive">0.00</span>
                     <span class="text-lg font-semibold ml-1">QAR</span>
@@ -275,62 +275,34 @@
             </div>
 
             <form id="bank-wallet-form">
-                <!-- 1. Bank Transfer Method Selection -->
-                <p class="text-sm font-medium text-gray-700 mb-2">Select Bank Transfer Type</p>
-                <div class="flex space-x-4 mb-4" onchange="handleBankDetailsChange()">
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="radio" name="bank-method" value="iban" id="radio-iban" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600" checked>
-                        <span class="ml-2 text-sm text-gray-700 font-medium">Bank Name & IBAN</span>
-                    </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="radio" name="bank-method" value="fawran" id="radio-fawran" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600">
-                        <span class="ml-2 text-sm text-gray-700 font-medium">Fawran / Account No.</span>
-                    </label>
-                </div>
-
-                <!-- IBAN/Fawran Conditionally Visible Fields -->
-                <div id="bank-fields">
-                    <!-- IBAN Fields (Default) -->
-                    <div id="iban-fields-group">
-                        <div class="mb-3">
-                            <input type="text" id="input-bank-name" placeholder="Recipient Bank Name (e.g., QNB)" class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" required>
-                        </div>
-                        <div class="mb-6">
-                            <input type="text" id="input-iban" placeholder="Recipient IBAN No." class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" required>
-                        </div>
-                    </div>
+                <!-- Unified Method Selection -->
+                <p class="text-sm font-medium text-gray-700 mb-3">Select One Recipient Method</p>
+                <div class="flex flex-wrap gap-2 mb-6" onchange="handleRecipientMethodChange()">
                     
-                    <!-- Fawran Fields (Initially Hidden) -->
-                    <div id="fawran-fields-group" class="hidden">
-                        <div class="mb-3">
-                            <input type="text" id="input-fawran-name" placeholder="Recipient Fawran Name" class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" required disabled>
-                        </div>
-                        <div class="mb-6">
-                            <input type="text" id="input-fawran-account" placeholder="Recipient Account No." class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" required disabled>
-                        </div>
-                    </div>
-                </div>
+                    <label class="flex-grow inline-flex items-center cursor-pointer bg-white p-2 rounded-lg border border-yellow-400 hover:bg-yellow-50 transition">
+                        <input type="radio" name="recipient-method" value="bank-iban" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600" checked>
+                        <span class="ml-2 text-xs font-medium text-gray-700">Bank (IBAN)</span>
+                    </label>
 
-                <!-- 2. Mobile Wallet Section -->
-                <p class="text-sm font-medium text-gray-700 mb-2 border-t border-yellow-300 pt-4 mt-4">Select Mobile Wallet Provider</p>
-                <div class="flex space-x-4 mb-4" onchange="handleWalletProviderChange()">
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="radio" name="wallet-provider" value="ooredoo" id="radio-ooredoo" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600" checked>
-                        <span class="ml-2 text-sm text-gray-700 font-medium">Ooredoo Mobile Wallet</span>
+                    <label class="flex-grow inline-flex items-center cursor-pointer bg-white p-2 rounded-lg border border-yellow-400 hover:bg-yellow-50 transition">
+                        <input type="radio" name="recipient-method" value="bank-fawran" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600">
+                        <span class="ml-2 text-xs font-medium text-gray-700">Fawran</span>
                     </label>
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="radio" name="wallet-provider" value="i-pay" id="radio-i-pay" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600">
-                        <span class="ml-2 text-sm text-gray-700 font-medium">I-Pay Mobile Wallet</span>
+
+                    <label class="flex-grow inline-flex items-center cursor-pointer bg-white p-2 rounded-lg border border-yellow-400 hover:bg-yellow-50 transition">
+                        <input type="radio" name="recipient-method" value="wallet-ooredoo" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600">
+                        <span class="ml-2 text-xs font-medium text-gray-700">Ooredoo Wallet</span>
+                    </label>
+
+                    <label class="flex-grow inline-flex items-center cursor-pointer bg-white p-2 rounded-lg border border-yellow-400 hover:bg-yellow-50 transition">
+                        <input type="radio" name="recipient-method" value="wallet-ipay" class="form-radio h-4 w-4 text-yellow-600 border-gray-300 focus:ring-yellow-600">
+                        <span class="ml-2 text-xs font-medium text-gray-700">I-Pay Wallet</span>
                     </label>
                 </div>
-                <div class="mb-6">
-                    <input 
-                        type="text" 
-                        id="input-wallet-number"
-                        placeholder="Ooredoo Wallet Number" 
-                        class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" 
-                        required
-                    >
+                
+                <!-- Dynamic Input Container (Content changes based on selected method) -->
+                <div id="dynamic-recipient-fields" class="bg-white rounded-xl p-4 mb-6 border border-yellow-400 shadow-inner">
+                    <!-- Fields will be inserted here by JavaScript -->
                 </div>
 
                 <!-- Save and Close Button -->
@@ -383,7 +355,7 @@
                         <input 
                             type="tel" 
                             id="input-phone-number" 
-                            placeholder="3130 9960" 
+                            placeholder="5512 3456" 
                             pattern="[0-9]{8}"
                             maxlength="8"
                             minlength="8"
@@ -437,7 +409,7 @@
             ]
         };
 
-        // NEW: Delivery Fees based on location
+        // Delivery Fees based on location
         const DELIVERY_FEES = {
             'pickup': 0.00,
             'bank': 0.00,
@@ -446,12 +418,44 @@
             'far_doha': 35.00 // Far from Doha
         };
         
+        // --- NEW: Payment Method Details and State ---
+        const METHOD_DETAILS = {
+            'bank-iban': {
+                label: 'Bank Transfer (IBAN)',
+                fields: [
+                    { id: 'bankName', placeholder: 'Recipient Bank (e.g., QNB)' },
+                    { id: 'iban', placeholder: 'Recipient IBAN No.' }
+                ]
+            },
+            'bank-fawran': {
+                label: 'Fawran / Account No.',
+                fields: [
+                    { id: 'fawranName', placeholder: 'Recipient Name' },
+                    { id: 'fawranAccount', placeholder: 'Fawran Account No.' }
+                ]
+            },
+            'wallet-ooredoo': {
+                label: 'Ooredoo Mobile Wallet',
+                fields: [
+                    { id: 'walletNumber', placeholder: 'Ooredoo Wallet Number' }
+                ]
+            },
+            'wallet-ipay': {
+                label: 'I-Pay Mobile Wallet',
+                fields: [
+                    { id: 'walletNumber', placeholder: 'I-Pay Mobile Wallet Number' }
+                ]
+            }
+        };
+
         // Storage for Recipient Details (simulated)
         let recipientDetails = { 
-            method: 'pickup', // Default
-            bank: null, 
-            wallet: null, 
-            location: 'doha' 
+            method: 'pickup', // Default transaction type (pickup, delivery, bank)
+            location: 'doha', // Delivery location if type is delivery
+            
+            // NEW unified structure for Bank/Wallet
+            selectedMethod: 'bank-iban', 
+            data: {} // Holds saved form data for all methods: { 'bank-iban': {bankName: '...', iban: '...'}, ... }
         };
         
         // Storage for Client Details (simulated)
@@ -466,6 +470,8 @@
          * Opens the Bank Transfer Modal.
          */
         function openBankModal() {
+            // Re-render fields for the currently selected method in state
+            renderRecipientFields(recipientDetails.selectedMethod); 
             document.getElementById('bank-transfer-modal').classList.add('open');
         }
 
@@ -481,7 +487,7 @@
          */
         function openClientDetailsModal() {
              // Basic validation check before opening the final modal
-            const amountReceivedQAR = parseFloat(document.getElementById('amount-get').value) || 0;
+            const amountReceivedQAR = parseFloat(document.getElementById('total-receive').textContent) || 0;
              if (amountReceivedQAR < MINIMUM_QAR_NET) {
                 // We show the warning on the UI, no need for a pop-up alert.
                 return; 
@@ -524,97 +530,122 @@
             }
         }
 
-        // --- Bank/Wallet Modal Logic ---
+        // --- Recipient Method Selection Logic ---
 
         /**
-         * Toggles visibility and required/disabled state for IBAN vs Fawran fields.
+         * Handles the change event for the unified recipient method radio buttons.
          */
-        function handleBankDetailsChange() {
-            const isIBAN = document.getElementById('radio-iban').checked;
+        function handleRecipientMethodChange() {
+            const selectedMethodElement = document.querySelector('input[name="recipient-method"]:checked');
+            if (!selectedMethodElement) return;
+
+            const newMethod = selectedMethodElement.value;
+            recipientDetails.selectedMethod = newMethod;
             
-            const ibanGroup = document.getElementById('iban-fields-group');
-            const fawranGroup = document.getElementById('fawran-fields-group');
-
-            const ibanInputs = [document.getElementById('input-bank-name'), document.getElementById('input-iban')];
-            const fawranInputs = [document.getElementById('input-fawran-name'), document.getElementById('input-fawran-account')];
-
-            if (isIBAN) {
-                ibanGroup.classList.remove('hidden');
-                fawranGroup.classList.add('hidden');
-                
-                ibanInputs.forEach(input => input.required = true);
-                fawranInputs.forEach(input => input.required = false);
-                fawranInputs.forEach(input => input.disabled = true);
-                ibanInputs.forEach(input => input.disabled = false);
-
-            } else {
-                ibanGroup.classList.add('hidden');
-                fawranGroup.classList.remove('hidden');
-
-                ibanInputs.forEach(input => input.required = false);
-                ibanInputs.forEach(input => input.disabled = true);
-                fawranInputs.forEach(input => input.required = true);
-                fawranInputs.forEach(input => input.disabled = false);
-            }
+            // Re-render fields for the newly selected method
+            renderRecipientFields(newMethod);
         }
-        
+
         /**
-         * Updates the placeholder for the wallet number input based on selected provider.
+         * Renders the input fields required for the selected recipient method.
+         * Also pre-fills the inputs from the global state if data exists.
+         * @param {string} methodId - The ID of the selected payment method.
          */
-        function handleWalletProviderChange() {
-            const isOoredoo = document.getElementById('radio-ooredoo').checked;
-            const walletInput = document.getElementById('input-wallet-number');
-
-            if (isOoredoo) {
-                walletInput.placeholder = "Ooredoo Wallet Number (e.g., 55XXXXXX)";
-            } else {
-                walletInput.placeholder = "I-Pay Mobile Wallet Number (e.g., 55XXXXXX)";
+        function renderRecipientFields(methodId) {
+            const container = document.getElementById('dynamic-recipient-fields');
+            const method = METHOD_DETAILS[methodId];
+            if (!method) { 
+                container.innerHTML = '<p class="text-gray-500">Please select a payment method above.</p>'; 
+                return; 
             }
+
+            let fieldsHTML = `<p class="text-base font-semibold text-gray-800 mb-4">Enter ${method.label} Details</p>`;
+            
+            method.fields.forEach(field => {
+                // Get stored value for the current method's field
+                const currentValue = recipientDetails.data[methodId] ? recipientDetails.data[methodId][field.id] || '' : '';
+                
+                fieldsHTML += `
+                    <div class="mb-3">
+                        <input 
+                            type="text" 
+                            id="input-${field.id}" 
+                            name="${field.id}"
+                            placeholder="${field.placeholder}" 
+                            value="${currentValue}"
+                            class="w-full py-3 px-4 border border-yellow-400 bg-white rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-gray-700 text-sm" 
+                            required
+                        >
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = fieldsHTML;
         }
+
 
         /**
          * Handles saving recipient details and closing the modal.
          */
         function saveBankDetails() {
             const form = document.getElementById('bank-wallet-form');
-            if (!form.checkValidity()) {
-                form.reportValidity();
+            const fieldsContainer = document.getElementById('dynamic-recipient-fields');
+            
+            // Check if all inputs inside the dynamic container are valid/filled
+            let isValid = true;
+            const inputs = fieldsContainer.querySelectorAll('input[required]');
+            
+            // 1. Validate inputs and save data to state in one loop
+            const currentMethod = recipientDetails.selectedMethod;
+            const currentMethodData = {};
+            
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    // Trigger native browser validation UI
+                    input.reportValidity();
+                }
+                currentMethodData[input.name] = input.value.trim();
+            });
+
+            if (!isValid) {
+                console.error("Please fill all required fields.");
                 return;
             }
-            
-            const selectedBankMethod = document.querySelector('input[name="bank-method"]:checked').value;
-            const selectedWalletProvider = document.querySelector('input[name="wallet-provider"]:checked').value;
-            
-            let bankData = null;
-            if (selectedBankMethod === 'iban') {
-                bankData = {
-                    type: 'IBAN',
-                    bankName: document.getElementById('input-bank-name').value,
-                    iban: document.getElementById('input-iban').value
-                };
-            } else {
-                 bankData = {
-                    type: 'Fawran',
-                    fawranName: document.getElementById('input-fawran-name').value,
-                    accountNo: document.getElementById('input-fawran-account').value
-                };
-            }
-            
-            const walletData = {
-                provider: selectedWalletProvider,
-                number: document.getElementById('input-wallet-number').value
-            };
 
-            // Save details to the global state
-            recipientDetails.bank = bankData;
-            recipientDetails.wallet = walletData;
+            // 2. Save the validated data for the current method to the global state
+            recipientDetails.data[currentMethod] = currentMethodData;
+            recipientDetails.method = 'bank'; // Ensure the main transaction type is 'bank'
             
-            console.log("Recipient Details Saved:", { bank: bankData, wallet: walletData });
+            console.log("Recipient Details Saved:", recipientDetails);
             
             closeBankModal();
         }
 
         // --- Client Details and Final Order Logic ---
+
+        /**
+         * Helper to get a descriptive string of the saved recipient details for the WhatsApp message.
+         */
+        function getRecipientDetailsSummary() {
+            const methodId = recipientDetails.selectedMethod;
+            const methodConfig = METHOD_DETAILS[methodId];
+            const savedData = recipientDetails.data[methodId];
+
+            if (!methodConfig || !savedData) {
+                return 'No recipient details saved.';
+            }
+
+            let summary = `*Method:* ${methodConfig.label}\n`;
+            
+            // Format details line by line
+            methodConfig.fields.forEach(field => {
+                const value = savedData[field.id] || 'N/A';
+                summary += `*${field.placeholder.split('(')[0].trim()}:* ${value}\n`;
+            });
+
+            return summary.trim();
+        }
 
         /**
          * Handles saving client details and triggering the final order summary/submission via WhatsApp.
@@ -624,7 +655,6 @@
             const phoneInput = document.getElementById('input-phone-number');
             const phoneVal = phoneInput.value.trim();
 
-            // Double-check validation (though button is disabled, this is a safety net)
             if (phoneVal.length !== 8) {
                 phoneInput.setCustomValidity("Please enter a valid 8-digit Qatar mobile number.");
                 phoneInput.reportValidity();
@@ -643,8 +673,9 @@
             clientDetails.phoneNumber = phoneVal;
 
             // Gather all transaction data
-            const amountGive = parseFloat(document.getElementById('amount-give').value).toFixed(2);
-            const amountGet = parseFloat(document.getElementById('amount-get').value).toFixed(2);
+            const amountGive = parseFloat(document.getElementById('amount-give').value) || 0;
+            const amountGetGross = parseFloat(document.getElementById('amount-get').value) || 0; // This is now Gross QAR
+            const amountGetNet = parseFloat(document.getElementById('total-receive').textContent) || 0; // This is Net QAR
             const currency = document.getElementById('currency-select').value;
             const transactionType = document.querySelector('input[name="transaction-type"]:checked').value;
             
@@ -652,14 +683,15 @@
             const transactionFeeText = document.getElementById('transaction-fee').textContent;
             const deliveryFeeText = document.getElementById('delivery-fee').textContent;
             const totalChargesText = document.getElementById('total-charges').textContent;
+            const currentRate = document.getElementById('current-rate-value').textContent;
 
             // Generate Random Transaction ID
             const transactionId = "#" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
             // Determine specific transaction data for the summary
-            let transactionSpecifics = '';
             let deliveryLocationDisplay = 'N/A';
             let transactionTypeDisplay = transactionType.charAt(0).toUpperCase() + transactionType.slice(1); // Capitalize
+            let recipientSummary = '';
 
             if (transactionType === 'delivery') {
                 const locationKey = document.getElementById('delivery-location-select').value;
@@ -671,15 +703,7 @@
                 deliveryLocationDisplay = locationMap[locationKey] || locationKey;
             } else if (transactionType === 'bank') {
                 transactionTypeDisplay = 'Bank/Wallet Transfer';
-                // Add bank details if available
-                if (recipientDetails.bank) {
-                     const bankMethod = recipientDetails.bank.type;
-                     const bankName = recipientDetails.bank.bankName || recipientDetails.bank.fawranName;
-                     const walletProvider = recipientDetails.wallet.provider === 'ooredoo' ? 'Ooredoo Wallet' : 'I-Pay Wallet';
-                     const walletNum = recipientDetails.wallet.number;
-                     
-                     transactionSpecifics = `\n*Recipient Details:*\nType: ${bankMethod} (${bankName})\nWallet: ${walletProvider} (${walletNum})`;
-                }
+                recipientSummary = `\n*Recipient Details:*\n${getRecipientDetailsSummary()}`;
             } else {
                 transactionTypeDisplay = 'Pick Up';
             }
@@ -688,28 +712,28 @@
             // BUILD WHATSAPP MESSAGE
             // ---------------------------------------------------------
             const message = `
-*New Currency Exchange Request:*
+*Customer Details:*
 Name: ${clientDetails.fullName}
 Contact: +974 ${clientDetails.phoneNumber}
 
 *Transaction Summary:*
-Customer Gives (${currency}): ${amountGive}
-Customer Gets (QAR, final): ${amountGet}
+You Give (${currency}): ${amountGive.toFixed(2)}
+You Get (QAR, Gross): ${amountGetGross.toFixed(2)}
 
 Transaction Fee: ${transactionFeeText}
 Delivery Fee: ${deliveryFeeText}
 *Total Charges: ${totalChargesText}*
 
-*Final QAR to Receive: ${amountGet}*
-Exchange Rate: 1 QAR = ${parseFloat(amountGive / amountGet).toFixed(2)} ${currency}
+*Final QAR to Receive (NET): ${amountGetNet.toFixed(2)}*
+Exchange Rate: 1 QAR = ${currentRate.replace(` ${currency}/QAR`, '')} ${currency}
 
 Transaction Type: ${transactionTypeDisplay}
 Delivery Location: ${deliveryLocationDisplay}
-${transactionSpecifics}
+${recipientSummary}
 
 Transaction ID: ${transactionId}
 
-*_Please confirm availability to proceed_*.
+Please confirm availability to proceed.
 `.trim();
 
             // Encode for URL
@@ -730,11 +754,10 @@ Transaction ID: ${transactionId}
          * @returns {number} The applicable delivery fee in QAR.
          */
         function calculateDeliveryFee() {
-            // Check if recipientDetails is defined to prevent crash
             if (typeof recipientDetails === 'undefined') return 0;
 
             const selectedTypeElement = document.querySelector('input[name="transaction-type"]:checked');
-            if (!selectedTypeElement) return 0; // Safety check
+            if (!selectedTypeElement) return 0; 
             
             const selectedType = selectedTypeElement.value;
 
@@ -771,10 +794,8 @@ Transaction ID: ${transactionId}
 
             // 2. Handle Bank Modal visibility
             if (selectedType === 'bank') {
-                // Open the modal when 'Bank/Wallet' is selected
                 openBankModal();
             } else {
-                // Ensure modal is closed if switching away from 'Bank/Wallet'
                 closeBankModal();
             }
             
@@ -844,7 +865,7 @@ Transaction ID: ${transactionId}
             
             bands.forEach(band => {
                 // Determine fee display (0.00 QAR or 0%)
-                const feeDisplay = band.fee === 0 ? '0%' : `${band.fee.toFixed(2)} QAR`;
+                const feeDisplay = band.fee === 0 ? '0.00 QAR' : `${band.fee.toFixed(2)} QAR`;
 
                 tableHTML += `
                         <tr class="text-text-dark border-b border-gray-100 last:border-b-0">
@@ -885,17 +906,24 @@ Transaction ID: ${transactionId}
             const ratesToggleTextEl = document.getElementById('rates-toggle-text');
             const minWarningEl = document.getElementById('minimum-amount-warning');
 
-            // Get current values (handle empty or invalid inputs safely)
-            let amountGiven = parseFloat(amountGiveInput.value);
-            if (isNaN(amountGiven)) amountGiven = 0;
-
-            let amountReceivedQAR = parseFloat(amountGetInput.value);
-            if (isNaN(amountReceivedQAR)) amountReceivedQAR = 0;
-            
             // Determine the calculation direction
-            // If called by system (null), check which field is focused to decide direction
             const lastActiveInput = document.activeElement ? document.activeElement.id : '';
             const isCalculatingFromQAR = changedInputId === 'amount-get' || (changedInputId === null && lastActiveInput === 'amount-get');
+            
+            const bands = CURRENCY_RATES[selectedCurrency];
+            const epsilon = 0.0001; 
+
+            // Variables to hold the final results
+            let amountGiven = 0;
+            let grossQAR = 0; // Raw amount received (QAR, before fees)
+            let netQAR = 0;   // Final amount received (QAR, after fees)
+            let transactionFee = 0;
+            
+            // Get the dynamic delivery fee
+            let deliveryFee = calculateDeliveryFee(); 
+            if (isNaN(deliveryFee)) deliveryFee = 0;
+            
+            let selectedRate = bands[0].rate; // Initialize with base rate for edge cases
 
             // 2. Update descriptive labels and setup
             giveLabel.innerHTML = `<svg class="w-4 h-4 mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>You Give (${selectedCurrency})`;
@@ -908,37 +936,29 @@ Transaction ID: ${transactionId}
             } else {
                  renderRateTable(selectedRateCurrency);
             }
-            
-            let selectedRate = 0;
-            let transactionFee = 0;
-            const bands = CURRENCY_RATES[selectedCurrency];
-            
-            // NEW: Get the dynamic delivery fee BEFORE calculation
-            let deliveryFee = calculateDeliveryFee(); 
-            if (isNaN(deliveryFee)) deliveryFee = 0;
-
-            const epsilon = 0.0001; 
 
             // 3. Main Calculation Logic
             
             if (!isCalculatingFromQAR) {
                 // --- DIRECTION: Source Currency (GIVE) -> QAR (GET) ---
                 
+                amountGiven = parseFloat(amountGiveInput.value) || 0;
+
                 if (amountGiven === 0) {
-                    amountReceivedQAR = 0;
-                    transactionFee = bands[0].fee;
                     selectedRate = bands[0].rate;
+                    transactionFee = bands[0].fee;
+                    grossQAR = 0;
                 } else {
-                    // Find the rate based on the estimated QAR received
+                    // Find the rate based on the calculated Net QAR (for tiering)
                     for (const band of bands) {
-                        // Gross QAR = Give / Rate
-                        // Net QAR = Gross QAR - Transaction Fee - Delivery Fee
-                        const grossQAR = amountGiven / band.rate;
-                        const netQAR = grossQAR - band.fee - deliveryFee;
+                        // 1. Calculate Gross QAR based on current rate/band
+                        const calculatedGrossQAR = amountGiven / band.rate;
                         
-                        // We check the band based on the resulting Net QAR
-                        if (netQAR <= band.max + epsilon || band.max === Infinity) {
-                            amountReceivedQAR = netQAR;
+                        // 2. Determine Net QAR to check against the band limits
+                        const calculatedNetQAR = calculatedGrossQAR - band.fee - deliveryFee; 
+                        
+                        if (calculatedNetQAR <= band.max + epsilon || band.max === Infinity) {
+                            grossQAR = calculatedGrossQAR;
                             transactionFee = band.fee;
                             selectedRate = band.rate;
                             break;
@@ -946,48 +966,53 @@ Transaction ID: ${transactionId}
                     }
                 }
                 
-                // Update the 'You Get' input field with the calculated QAR amount
-                const finalVal = Math.max(0, amountReceivedQAR).toFixed(2);
-                amountGetInput.value = finalVal;
-                // Sync our local variable for the summary display below
-                amountReceivedQAR = parseFloat(finalVal);
+                // Calculate Net QAR
+                const totalCharges = transactionFee + deliveryFee;
+                netQAR = grossQAR - totalCharges;
+                
+                // Assign GROSS QAR to the 'You Get' input
+                amountGetInput.value = Math.max(0, grossQAR).toFixed(2);
 
             } else {
                 // --- DIRECTION: QAR (GET) -> Source Currency (GIVE) ---
                 
-                 if (amountReceivedQAR === 0) {
-                    amountGiven = 0;
-                    transactionFee = bands[0].fee;
+                // IMPORTANT: The 'You Get' input is the GROSS QAR amount
+                grossQAR = parseFloat(amountGetInput.value) || 0;
+
+                if (grossQAR === 0) {
                     selectedRate = bands[0].rate;
-                 } else {
-                    // Find the rate based on the QAR amount requested
+                    transactionFee = bands[0].fee;
+                    amountGiven = 0;
+                } else {
+                    // Find the rate based on the GROSS QAR input
                     for (const band of bands) {
-                        if (amountReceivedQAR <= band.max + epsilon || band.max === Infinity) {
+                        if (grossQAR <= band.max + epsilon || band.max === Infinity) {
                             // Calculation: 
-                            // Net = Gross - TxnFee - DeliveryFee
-                            // Gross = Net + TxnFee + DeliveryFee
-                            // Give = Gross * Rate
-                            amountGiven = (amountReceivedQAR + band.fee + deliveryFee) * band.rate;
+                            // Give = Gross QAR * Rate
+                            amountGiven = grossQAR * band.rate;
                             
                             transactionFee = band.fee;
                             selectedRate = band.rate;
                             break;
                         }
                     }
-                 }
+                }
 
-                const finalVal = Math.max(0, amountGiven).toFixed(2);
-                amountGiveInput.value = finalVal;
+                // Calculate Net QAR
+                const totalCharges = transactionFee + deliveryFee;
+                netQAR = grossQAR - totalCharges;
+                
+                // Assign GIVEN amount to the 'You Give' input
+                amountGiveInput.value = Math.max(0, amountGiven).toFixed(2);
             }
             
-            // 4. Calculate total charges and final output
+            // 4. Calculate total charges (common logic)
             const totalCharges = transactionFee + deliveryFee;
             
             // 5. Update UI fields
-            const finalQARFormatted = Math.max(0, amountReceivedQAR).toFixed(2);
             
-            // a) Show/hide minimum amount warning based on MINIMUM_QAR_NET
-            if (amountReceivedQAR < MINIMUM_QAR_NET && amountReceivedQAR > 0) {
+            // a) Show/hide minimum amount warning logic based on NET QAR
+            if (netQAR < MINIMUM_QAR_NET && netQAR > 0) {
                 minWarningEl.classList.remove('hidden');
             } else {
                 minWarningEl.classList.add('hidden');
@@ -1004,31 +1029,22 @@ Transaction ID: ${transactionId}
             
             totalChargesEl.textContent = totalCharges.toFixed(2) + ' QAR';
             
-            totalReceiveEl.textContent = finalQARFormatted;
+            // Update the Total You Will Receive box with NET QAR
+            totalReceiveEl.textContent = Math.max(0, netQAR).toFixed(2);
         }
 
         // Initialization Logic
         document.addEventListener('DOMContentLoaded', () => {
-            const amountGiveInput = document.getElementById('amount-give');
-            const amountGetInput = document.getElementById('amount-get');
-            
-            if (!amountGiveInput.value) { amountGiveInput.value = '3600.00'; }
-            if (!amountGetInput.value) { amountGetInput.value = '0.00'; }
-
             // Initialize the currency rate selector to KES
             selectedRateCurrency = 'KES'; 
             setRateCurrency('KES');
 
-            // Initialize bank details visibility and required attributes
-            handleBankDetailsChange();
-            // Initialize wallet provider placeholder
-            handleWalletProviderChange();
-
-            // Initialize delivery location visibility (should be hidden by default for "Pick Up")
-            handleTransactionTypeChange();
+            // Initialize the recipient fields for the default method and set initial state
+            // The default radio button is 'bank-iban'
+            handleRecipientMethodChange();
             
-            // Initial calculation and UI update
-            updateExchangeAndUI('amount-give');
+            // Initial calculation and UI update.
+            updateExchangeAndUI('amount-give'); 
             
             // Set initial state for the rates container (closed)
             const container = document.getElementById('rates-content-container');
